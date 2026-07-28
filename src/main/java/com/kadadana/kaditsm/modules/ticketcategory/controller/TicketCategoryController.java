@@ -34,13 +34,13 @@ public class TicketCategoryController {
     public ApiResponse<TicketCategoryResponseDTO> patchCategory(
             @PathVariable UUID id,
             @RequestBody TicketCategoryUpdateDTO updateDTO) {
-        TicketCategoryResponseDTO updatedCategory = categoryService.patchCategory(id, updateDTO);
+        TicketCategoryResponseDTO updatedCategory = categoryService.updateCategory(id, updateDTO);
         return ApiResponse.success(updatedCategory, "Category updated successfully.");
     }
 
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteCategory(@PathVariable UUID id) {
-        categoryService.deleteCategory(id);
+        categoryService.deactivateCategory(id);
         return ApiResponse.success(null, "Category deactivated successfully.");
     }
 }

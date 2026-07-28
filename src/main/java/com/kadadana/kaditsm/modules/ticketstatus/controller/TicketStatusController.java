@@ -34,13 +34,13 @@ public class TicketStatusController {
     public ApiResponse<TicketStatusResponseDTO> patchStatus(
             @PathVariable UUID id,
             @RequestBody TicketStatusUpdateDTO updateDTO) {
-        TicketStatusResponseDTO updatedStatus = statusService.patchStatus(id, updateDTO);
+        TicketStatusResponseDTO updatedStatus = statusService.updateStatus(id, updateDTO);
         return ApiResponse.success(updatedStatus, "Ticket status updated successfully.");
     }
 
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteStatus(@PathVariable UUID id) {
-        statusService.deleteStatus(id);
+        statusService.deactivateStatus(id);
         return ApiResponse.success(null, "Ticket status deactivated successfully.");
     }
 }

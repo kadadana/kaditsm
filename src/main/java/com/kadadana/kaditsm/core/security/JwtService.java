@@ -56,14 +56,14 @@ public class JwtService {
     }
 
     public String extractUserId(String token) {
-        return extractAllClaims(token).get("userId", String.class);
+        Object userIdObj = extractAllClaims(token).get("userId");
+        return userIdObj != null ? userIdObj.toString() : null;
     }
 
     private boolean isTokenExpired(String token) {
         return extractClaim(token, claims -> claims.getExpiration()).before(new Date());
     }
 
-    @SuppressWarnings("null")
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         if (claims == null) {

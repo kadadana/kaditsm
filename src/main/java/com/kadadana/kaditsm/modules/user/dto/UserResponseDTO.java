@@ -1,5 +1,7 @@
 package com.kadadana.kaditsm.modules.user.dto;
 
+import java.util.UUID;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserResponseDTO {
-    private String id;
+    private UUID id;
     private String username;
     private String displayName;
     private String department;

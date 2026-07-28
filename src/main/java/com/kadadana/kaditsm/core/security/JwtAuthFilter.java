@@ -16,6 +16,7 @@ import com.kadadana.kaditsm.modules.user.service.UserService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -30,33 +31,34 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
         String token = null;
-        String id = null;
+        String userIdStr = null;
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
-            id = jwtService.extractUserId(token);
-        }
-
-        try {
-            if (id != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                if (jwtService.validateToken(token)) {
-                    String role = userService.getUserById(id).getRole();
-
-                    SimpleGrantedAuthority authority = new SimpleGrantedAuthority(
-                            "ROLE_" + (role == null ? "USER" : role.toUpperCase()));
-
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            id,
-                            null,
-                            List.of(authority));
-
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
+            try {
+                userIdStr = jwtService.extractUserId(token);
+            } catch (Exception e) {
             }
-
-            filterChain.doFilter(request, response);
-        } finally {
         }
+
+        if (userIdStr != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (jwtService.validateToken(token)) {
+                UUID userId = UUID.fromString(userIdStr);
+                String role = userService.getUserById(userId).getRole();
+
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority(
+                        "ROLE_" + (role == null ? "USER" : role.toUpperCase()));
+
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userIdStr,
+                        null,
+                        List.of(authority));
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+
+        filterChain.doFilter(request, response);
     }
 }

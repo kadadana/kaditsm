@@ -3,7 +3,7 @@ package com.kadadana.kaditsm.modules.user.dto;
 import lombok.Data;
 
 @Data
-public class UserPatchDTO {
+public class UserCreateDTO {
     private String username;
     private String role;
     private String displayName;

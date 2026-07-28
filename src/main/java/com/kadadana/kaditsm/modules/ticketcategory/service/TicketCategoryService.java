@@ -35,7 +35,7 @@ public class TicketCategoryService {
     }
 
     @Transactional
-    public TicketCategoryResponseDTO patchCategory(UUID id, TicketCategoryUpdateDTO updateDTO) {
+    public TicketCategoryResponseDTO updateCategory(UUID id, TicketCategoryUpdateDTO updateDTO) {
         TicketCategoryEntity entity = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found: " + id));
 
@@ -45,7 +45,7 @@ public class TicketCategoryService {
     }
 
     @Transactional
-    public void deleteCategory(UUID id) {
+    public void deactivateCategory(UUID id) {
         TicketCategoryEntity entity = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found: " + id));
 

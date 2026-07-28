@@ -1,5 +1,7 @@
 package com.kadadana.kaditsm.core.config;
 
+import com.kadadana.kaditsm.modules.auth.entity.AuthEntity;
+import com.kadadana.kaditsm.modules.auth.repository.AuthRepository;
 import com.kadadana.kaditsm.modules.user.entity.UserEntity;
 import com.kadadana.kaditsm.modules.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,6 +9,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -20,19 +23,32 @@ public class AdminBootstrapRunner {
     private String adminPassword;
 
     @Bean
-    public ApplicationRunner adminBootstrap(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    @Transactional
+    public ApplicationRunner adminBootstrap(
+            UserRepository userRepository,
+            AuthRepository authRepository,
+            PasswordEncoder passwordEncoder) {
         return args -> {
-            if (userRepository.count() == 0) {
-                UserEntity admin = UserEntity.builder()
-                        .id(UUID.randomUUID().toString())
+            if (userRepository.count() == 0 && authRepository.count() == 0) {
+                UUID adminId = UUID.randomUUID();
+                String encodedPassword = passwordEncoder.encode(adminPassword);
+
+                UserEntity adminUser = UserEntity.builder()
+                        .id(adminId)
                         .username(adminUsername)
                         .displayName("Administrator")
                         .department("IT")
                         .email("admin@example.com")
                         .role("ADMIN")
-                        .password(passwordEncoder.encode(adminPassword))
                         .build();
-                userRepository.save(admin);
+
+                AuthEntity adminAuth = AuthEntity.builder()
+                        .id(adminId)
+                        .password(encodedPassword)
+                        .build();
+
+                userRepository.save(adminUser);
+                authRepository.save(adminAuth);
             }
         };
     }

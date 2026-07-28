@@ -39,7 +39,7 @@ public class TicketStatusService {
     }
 
     @Transactional
-    public TicketStatusResponseDTO patchStatus(UUID id, TicketStatusUpdateDTO updateDTO) {
+    public TicketStatusResponseDTO updateStatus(UUID id, TicketStatusUpdateDTO updateDTO) {
         TicketStatusEntity entity = statusRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket status not found: " + id));
 
@@ -53,7 +53,7 @@ public class TicketStatusService {
     }
 
     @Transactional
-    public void deleteStatus(UUID id) {
+    public void deactivateStatus(UUID id) {
         TicketStatusEntity entity = statusRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ticket status not found: " + id));
 

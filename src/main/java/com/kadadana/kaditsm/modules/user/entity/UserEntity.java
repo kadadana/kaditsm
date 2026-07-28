@@ -1,5 +1,7 @@
 package com.kadadana.kaditsm.modules.user.entity;
 
+import java.util.UUID;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +18,7 @@ public class UserEntity {
 
     @Id
     @Column(name = "id", nullable = false, unique = true)
-    private String id;
+    private UUID id;
 
     @Column(name = "username", nullable = false)
     private String username;
@@ -33,6 +35,4 @@ public class UserEntity {
     @Column(name = "role", nullable = false, length = 100)
     private String role;
 
-    @Column(nullable = false)
-    private String password;
 }

@@ -35,7 +35,7 @@ public class TicketUrgencyService {
     }
 
     @Transactional
-    public TicketUrgencyResponseDTO patchUrgency(UUID id, TicketUrgencyUpdateDTO updateDTO) {
+    public TicketUrgencyResponseDTO editUrgency(UUID id, TicketUrgencyUpdateDTO updateDTO) {
         TicketUrgencyEntity entity = urgencyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Urgency level not found: " + id));
 
@@ -45,7 +45,7 @@ public class TicketUrgencyService {
     }
 
     @Transactional
-    public void deleteUrgency(UUID id) {
+    public void deactivateUrgency(UUID id) {
         TicketUrgencyEntity entity = urgencyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Urgency level not found: " + id));
 

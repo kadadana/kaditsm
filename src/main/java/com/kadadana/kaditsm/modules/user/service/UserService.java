@@ -1,19 +1,18 @@
 package com.kadadana.kaditsm.modules.user.service;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.kadadana.kaditsm.modules.user.dto.UserPatchDTO;
+import com.kadadana.kaditsm.modules.user.dto.UserCreateDTO;
+import com.kadadana.kaditsm.modules.user.dto.UserUpdateDTO;
 import com.kadadana.kaditsm.modules.user.dto.UserResponseDTO;
 import com.kadadana.kaditsm.modules.user.entity.UserEntity;
 import com.kadadana.kaditsm.modules.user.mapper.UserMapper;
 import com.kadadana.kaditsm.modules.user.repository.UserRepository;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -21,9 +20,16 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
 
-    public UserResponseDTO getUserById(String id) {
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(userMapper::toResponseDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUserById(UUID id) {
         return userRepository.findById(id)
                 .map(entity -> userMapper.toResponseDTO(entity))
                 .orElseThrow(() -> new RuntimeException("The user with ID " + id + " was not found."));
@@ -35,41 +41,26 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("The user with username " + username + " was not found."));
     }
 
-    public UserResponseDTO authenticate(String username, String rawPassword) {
-        UserEntity entity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new BadCredentialsException("Invalid username or password."));
+    @Transactional
+    public UserEntity createUser(UserCreateDTO createDTO) {
+        UserEntity entity = UserEntity.builder()
+                .username(createDTO.getUsername())
+                .email(createDTO.getEmail())
+                .role(createDTO.getRole())
+                .build();
 
-        if (entity.getPassword() == null || !passwordEncoder.matches(rawPassword, entity.getPassword())) {
-            throw new BadCredentialsException("Invalid username or password.");
-        }
-
-        return userMapper.toResponseDTO(entity);
+        return userRepository.save(entity);
     }
 
     @Transactional
-    public UserResponseDTO patchUser(String id, UserPatchDTO patchDTO) {
-        if (patchDTO.getRole() == null) {
-            throw new IllegalArgumentException("The role to update cannot be null.");
-        }
-
+    public UserResponseDTO updateUser(UUID id, UserUpdateDTO updateDTO) {
         UserEntity entity = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("The user with ID " + id + " was not found."));
-        entity.setRole(patchDTO.getRole());
-        UserEntity updated = userRepository.save(entity);
-        return userMapper.toResponseDTO(updated);
-    }
+                .orElseThrow(() -> new RuntimeException("User not found: " + id));
 
-    @Transactional
-    public void changePassword(String username, String currentPassword, String newPassword) {
-        UserEntity entity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("The user with username " + username + " was not found."));
+        userMapper.updateEntityFromDto(updateDTO, entity);
 
-        if (entity.getPassword() == null || !passwordEncoder.matches(currentPassword, entity.getPassword())) {
-            throw new IllegalArgumentException("Current password is incorrect.");
-        }
-
-        entity.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(entity);
+        UserEntity updatedTicket = userRepository.save(entity);
+        return userMapper.toResponseDTO(updatedTicket);
     }
 
     public List<UserResponseDTO> getUserByRole(String role) {

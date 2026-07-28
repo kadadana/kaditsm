@@ -34,13 +34,13 @@ public class TicketUrgencyController {
     public ApiResponse<TicketUrgencyResponseDTO> patchUrgency(
             @PathVariable UUID id,
             @RequestBody TicketUrgencyUpdateDTO updateDTO) {
-        TicketUrgencyResponseDTO updatedUrgency = urgencyService.patchUrgency(id, updateDTO);
+        TicketUrgencyResponseDTO updatedUrgency = urgencyService.editUrgency(id, updateDTO);
         return ApiResponse.success(updatedUrgency, "Urgency level updated successfully.");
     }
 
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteUrgency(@PathVariable UUID id) {
-        urgencyService.deleteUrgency(id);
+        urgencyService.deactivateUrgency(id);
         return ApiResponse.success(null, "Urgency level deactivated successfully.");
     }
 }
