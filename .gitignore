@@ -1,0 +1,32 @@
+# Maven
+target/
+*.jar
+*.war
+*.ear
+
+# Gradle
+.gradle/
+build/
+bin/
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse
+.settings/
+.project
+.classpath
+bin/
+
+# Genel
+.DS_Store
+*.log
+*.tmp
+logs/
+.springBeans
+
+### VS Code ###
+.vscode/
