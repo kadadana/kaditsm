@@ -1,8 +1,8 @@
 package com.kadadana.kaditsm.modules.auth.entity;
 
+//JAVA IMPORTS
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.UUID;
 
 @Entity

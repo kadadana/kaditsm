@@ -1,10 +1,13 @@
 package com.kadadana.kaditsm.modules.ticketstatus.mapper;
 
+//JAVA IMPORTS
+import org.springframework.stereotype.Component;
+
+//MODULE IMPORTS
 import com.kadadana.kaditsm.modules.ticketstatus.dto.TicketStatusCreateDTO;
 import com.kadadana.kaditsm.modules.ticketstatus.dto.TicketStatusResponseDTO;
 import com.kadadana.kaditsm.modules.ticketstatus.dto.TicketStatusUpdateDTO;
 import com.kadadana.kaditsm.modules.ticketstatus.entity.TicketStatusEntity;
-import org.springframework.stereotype.Component;
 
 @Component
 public class TicketStatusMapper {

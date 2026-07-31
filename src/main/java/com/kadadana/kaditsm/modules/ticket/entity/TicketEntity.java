@@ -1,8 +1,8 @@
 package com.kadadana.kaditsm.modules.ticket.entity;
 
+//JAVA IMPORTS
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 

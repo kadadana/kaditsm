@@ -1,17 +1,19 @@
 package com.kadadana.kaditsm.modules.ticketcategory.service;
 
+//JAVA IMPORTS
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.UUID;
+
+//MODULE IMPORTS
 import com.kadadana.kaditsm.modules.ticketcategory.dto.TicketCategoryCreateDTO;
 import com.kadadana.kaditsm.modules.ticketcategory.dto.TicketCategoryResponseDTO;
 import com.kadadana.kaditsm.modules.ticketcategory.dto.TicketCategoryUpdateDTO;
 import com.kadadana.kaditsm.modules.ticketcategory.entity.TicketCategoryEntity;
 import com.kadadana.kaditsm.modules.ticketcategory.mapper.TicketCategoryMapper;
 import com.kadadana.kaditsm.modules.ticketcategory.repository.TicketCategoryRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

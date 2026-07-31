@@ -1,8 +1,8 @@
 package com.kadadana.kaditsm.modules.ticketcategory.entity;
 
+//JAVA IMPORTS
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;

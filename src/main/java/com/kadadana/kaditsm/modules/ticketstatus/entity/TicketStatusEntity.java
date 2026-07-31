@@ -1,8 +1,8 @@
 package com.kadadana.kaditsm.modules.ticketstatus.entity;
 
+//JAVA IMPORTS
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.util.UUID;
 
 @Entity

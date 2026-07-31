@@ -1,0 +1,36 @@
+server.port=8080
+
+spring.security.user.name=admin
+spring.security.user.password=admin
+
+# PostgreSQL Configuration
+spring.datasource.url=jdbc:postgresql://IP:PORT/kaditsm
+spring.datasource.username=DB_USERNAME
+spring.datasource.password=DB_PASSWORD
+
+# Redis Configuration
+spring.data.redis.host=IP
+spring.data.redis.port= PORT
+spring.data.redis.timeout=REDIS_TIMEOUT
+spring.data.redis.username=REDIS_USERNAME
+spring.data.redis.password=REDIS_PASSWORD
+
+
+spring.datasource.hikari.connection-test-query=SELECT 1
+spring.datasource.hikari.max-lifetime=1800000
+spring.datasource.hikari.keepalive-time=300000
+spring.datasource.hikari.validation-timeout=5000
+
+# JPA / Hibernate Configuration
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.datasource.hikari.initialization-fail-timeout=-1
+
+jwt.secret=SUPER_SECRET_KEY_AT_LEAST_256_BITS_LONG
+jwt.expiration=86400000
+
+logging.level.com.kadadana.kaditsm.modules.user.service.UserService=INFO
+logging.level.org.springframework.web: DEBUG
+logging.level.org.hibernate: ERROR

@@ -1,7 +1,7 @@
 package com.kadadana.kaditsm.modules.user.entity;
 
+//JAVA IMPORTS
 import java.util.UUID;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,9 @@
 package com.kadadana.kaditsm.modules.user.mapper;
 
+//JAVA IMPORTS
 import org.springframework.stereotype.Component;
 
+//MODULE IMPORTS
 import com.kadadana.kaditsm.modules.user.dto.UserUpdateDTO;
 import com.kadadana.kaditsm.modules.user.dto.UserResponseDTO;
 import com.kadadana.kaditsm.modules.user.entity.UserEntity;

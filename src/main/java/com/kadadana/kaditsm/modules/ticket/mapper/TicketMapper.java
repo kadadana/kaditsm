@@ -1,9 +1,12 @@
 package com.kadadana.kaditsm.modules.ticket.mapper;
 
+//JAVA IMPORTS
+import org.springframework.stereotype.Component;
+
+//MODULE IMPORTS
 import com.kadadana.kaditsm.modules.ticket.dto.TicketResponseDTO;
 import com.kadadana.kaditsm.modules.ticket.dto.TicketUpdateDTO;
 import com.kadadana.kaditsm.modules.ticket.entity.TicketEntity;
-import org.springframework.stereotype.Component;
 
 @Component
 public class TicketMapper {

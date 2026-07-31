@@ -1,10 +1,13 @@
 package com.kadadana.kaditsm.modules.ticketurgency.mapper;
 
+//JAVA IMPORTS
+import org.springframework.stereotype.Component;
+
+//MODULE IMPORTS
 import com.kadadana.kaditsm.modules.ticketurgency.dto.TicketUrgencyCreateDTO;
 import com.kadadana.kaditsm.modules.ticketurgency.dto.TicketUrgencyResponseDTO;
 import com.kadadana.kaditsm.modules.ticketurgency.dto.TicketUrgencyUpdateDTO;
 import com.kadadana.kaditsm.modules.ticketurgency.entity.TicketUrgencyEntity;
-import org.springframework.stereotype.Component;
 
 @Component
 public class TicketUrgencyMapper {

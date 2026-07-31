@@ -1,18 +1,19 @@
 package com.kadadana.kaditsm.modules.user.service;
 
+//JAVA IMPORTS
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
+import java.util.UUID;
 
+//MODULE IMPORTS
 import com.kadadana.kaditsm.modules.user.dto.UserCreateDTO;
 import com.kadadana.kaditsm.modules.user.dto.UserUpdateDTO;
 import com.kadadana.kaditsm.modules.user.dto.UserResponseDTO;
 import com.kadadana.kaditsm.modules.user.entity.UserEntity;
 import com.kadadana.kaditsm.modules.user.mapper.UserMapper;
 import com.kadadana.kaditsm.modules.user.repository.UserRepository;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor

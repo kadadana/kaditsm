@@ -1,11 +1,11 @@
 package com.kadadana.kaditsm.modules.auth.dto;
 
+//JAVA IMPORTS
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.util.UUID;
 
 @Data
@@ -13,10 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Authentication response payload containing the JWT access token")
-public class LoginResponseDTO {
-
-    @Schema(description = "JWT access token to be used as Bearer token in subsequent requests", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
-    private String token;
+public class AuthResponseDTO {
 
     @Schema(description = "Assigned user role in the system", example = "ADMIN")
     private String role;
