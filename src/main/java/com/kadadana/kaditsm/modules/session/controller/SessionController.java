@@ -4,6 +4,7 @@ package com.kadadana.kaditsm.modules.session.controller;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 //CORE IMPORTS
 import com.kadadana.kaditsm.core.model.ApiResponse;
@@ -32,7 +33,8 @@ public class SessionController {
 
     @DeleteMapping
     @Operation(summary = "Logout", description = "Invalidate the current JWT and end the session.")
-    public ApiResponse<SessionResponseDTO> logout(@RequestHeader("Authorization") String authHeader) {
+    public ApiResponse<SessionResponseDTO> logout(
+            @Parameter(hidden = true) @RequestHeader("Authorization") String authHeader) {
         String jwt = authHeader.replace("Bearer ", "");
         sessionService.logout(jwt);
 
