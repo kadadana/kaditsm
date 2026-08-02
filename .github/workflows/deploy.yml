@@ -11,8 +11,8 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Deploy with Docker Compose
         run: |
-          docker compose -f /opt/kaditsm/docker-compose.yml up -d --build
+          docker compose up -d --build
