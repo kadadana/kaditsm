@@ -23,6 +23,19 @@ services:
       - redis
     restart: always
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kaditsm-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:${APP_PORT:-8080}
+    depends_on:
+      - app
+    restart: always
+
   postgres:
     image: postgres:16-alpine
     container_name: kaditsm-postgres
