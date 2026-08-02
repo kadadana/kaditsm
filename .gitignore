@@ -33,3 +33,5 @@ logs/
 
 application.properties
 application-dev.properties
+
+docker-compose.yml
