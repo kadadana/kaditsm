@@ -18,7 +18,7 @@ import com.kadadana.kaditsm.modules.ticketcategory.dto.TicketCategoryUpdateDTO;
 import com.kadadana.kaditsm.modules.ticketcategory.service.TicketCategoryService;
 
 @RestController
-@RequestMapping("/api/v1/categories")
+@RequestMapping("/api/categories")
 @RequiredArgsConstructor
 @Tag(name = "Categories", description = "Endpoints to manage ticket categories")
 public class TicketCategoryController {

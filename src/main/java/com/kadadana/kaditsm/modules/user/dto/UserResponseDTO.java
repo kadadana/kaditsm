@@ -31,5 +31,5 @@ public class UserResponseDTO {
     private String email;
 
     @Schema(description = "Role assigned to the user, e.g., 'ADMIN' or 'USER'")
-    private String role;
+    private UUID role;
 }

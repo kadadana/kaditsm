@@ -36,7 +36,7 @@ public class AuthService {
             throw new RuntimeException("Invalid credentials.");
         }
         return new AuthResponseDTO(
-                dbUser.getRole(),
+                dbUser.getRole().toString(),
                 dbUser.getId());
     }
 

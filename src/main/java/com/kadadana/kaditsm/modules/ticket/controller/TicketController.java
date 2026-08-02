@@ -18,7 +18,7 @@ import com.kadadana.kaditsm.modules.ticket.dto.TicketUpdateDTO;
 import com.kadadana.kaditsm.modules.ticket.service.TicketService;
 
 @RestController
-@RequestMapping("/api/v1/tickets")
+@RequestMapping("/api/tickets")
 @RequiredArgsConstructor
 @Tag(name = "Tickets", description = "Endpoints to manage helpdesk tickets")
 public class TicketController {
@@ -34,7 +34,7 @@ public class TicketController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get ticket by ID", description = "Retrieve ticket details for the given ticket ID.")
-    public ApiResponse<TicketResponseDTO> getTicketById(@PathVariable UUID id) {
+    public ApiResponse<TicketResponseDTO> getTicketById(@PathVariable() UUID id) {
         TicketResponseDTO ticket = ticketService.getTicketById(id);
         return ApiResponse.success(ticket, "Ticket details retrieved successfully.");
     }

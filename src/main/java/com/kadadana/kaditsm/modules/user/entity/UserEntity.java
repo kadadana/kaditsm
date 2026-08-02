@@ -33,6 +33,6 @@ public class UserEntity {
     private String email;
 
     @Column(name = "role", nullable = false, length = 100)
-    private String role;
+    private UUID role;
 
 }

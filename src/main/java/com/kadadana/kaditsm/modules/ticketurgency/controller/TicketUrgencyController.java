@@ -18,7 +18,7 @@ import com.kadadana.kaditsm.modules.ticketurgency.dto.TicketUrgencyUpdateDTO;
 import com.kadadana.kaditsm.modules.ticketurgency.service.TicketUrgencyService;
 
 @RestController
-@RequestMapping("/api/v1/urgencies")
+@RequestMapping("/api/urgencies")
 @RequiredArgsConstructor
 @Tag(name = "Urgencies", description = "Endpoints to manage ticket urgency levels")
 public class TicketUrgencyController {

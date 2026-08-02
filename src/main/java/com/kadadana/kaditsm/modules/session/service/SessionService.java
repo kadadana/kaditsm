@@ -42,11 +42,12 @@ public class SessionService {
             throw new RuntimeException("Invalid credentials.");
         }
 
-        String token = jwtService.generateToken(dbUser.getUsername(), dbUser.getRole(), dbUser.getId().toString());
+        String token = jwtService.generateToken(dbUser.getUsername(), dbUser.getRole().toString(),
+                dbUser.getId().toString());
 
         return SessionResponseDTO.builder()
                 .token(token)
-                .role(dbUser.getRole())
+                .role(dbUser.getRole().toString())
                 .userId(dbUser.getId())
                 .build();
     }

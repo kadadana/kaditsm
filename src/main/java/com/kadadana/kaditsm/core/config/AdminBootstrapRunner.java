@@ -24,7 +24,7 @@ public class AdminBootstrapRunner {
 
     @Bean
     @Transactional
-    public ApplicationRunner adminBootstrap(
+    ApplicationRunner adminBootstrap(
             UserRepository userRepository,
             AuthRepository authRepository,
             PasswordEncoder passwordEncoder) {
@@ -39,7 +39,7 @@ public class AdminBootstrapRunner {
                         .displayName("Administrator")
                         .department("IT")
                         .email("admin@example.com")
-                        .role("ADMIN")
+                        .role(UUID.fromString("00000000-0000-0000-0000-000000000001"))
                         .build();
 
                 AuthEntity adminAuth = AuthEntity.builder()

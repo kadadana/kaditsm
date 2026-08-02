@@ -18,7 +18,7 @@ import com.kadadana.kaditsm.modules.ticketstatus.dto.TicketStatusUpdateDTO;
 import com.kadadana.kaditsm.modules.ticketstatus.service.TicketStatusService;
 
 @RestController
-@RequestMapping("/api/v1/statuses")
+@RequestMapping("/api/statuses")
 @RequiredArgsConstructor
 @Tag(name = "Statuses", description = "Endpoints to manage ticket statuses (e.g., OPEN, IN_PROGRESS, CLOSED)")
 public class TicketStatusController {
