@@ -8,11 +8,22 @@ on:
 jobs:
   deploy:
     runs-on: self-hosted
+    environment: production
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v5
 
       - name: Deploy with Docker Compose
+        env:
+          APP_PORT: ${{ vars.APP_PORT }}
+          POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
+          POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
+          POSTGRES_DB: ${{ vars.POSTGRES_DB }}
+          POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          REDIS_HOST: ${{ vars.REDIS_HOST }}
+          REDIS_PORT: ${{ vars.REDIS_PORT }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           docker compose up -d --build

@@ -31,7 +31,7 @@ logs/
 ### VS Code ###
 .vscode/
 
-application.properties
 application-dev.properties
 
-docker-compose.yml
+# Sensitive environment variables
+.env
