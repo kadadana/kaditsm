@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.kaditsm.auth.domain.model.AuthToken;
+import com.kaditsm.auth.domain.model.LoginResult;
 import com.kaditsm.auth.domain.model.Identity;
 import com.kaditsm.auth.domain.port.in.CreateSessionUseCase;
 import com.kaditsm.auth.domain.port.out.PasswordEncoderPort;
@@ -32,7 +32,7 @@ public class CreateSessionService implements CreateSessionUseCase {
     }
 
     @Override
-    public AuthToken createSession(CreateSessionCommand command) {
+    public LoginResult createSession(CreateSessionCommand command) {
         Identity user = userRepositoryPort.findByEmail(command.email())
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
 

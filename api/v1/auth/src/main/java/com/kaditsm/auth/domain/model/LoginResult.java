@@ -1,14 +1,14 @@
 package com.kaditsm.auth.domain.model;
 
-public class AuthToken {
+public class LoginResult {
     private final String accessToken;
     private final String refreshToken;
-    private final long expiresIn;
+    private final long expiresInSeconds;
 
-    public AuthToken(String accessToken, String refreshToken, long expiresIn) {
+    public LoginResult(String accessToken, String refreshToken, long expiresInSeconds) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-        this.expiresIn = expiresIn;
+        this.expiresInSeconds = expiresInSeconds;
     }
 
     public String getAccessToken() {
@@ -19,7 +19,7 @@ public class AuthToken {
         return refreshToken;
     }
 
-    public long getExpiresIn() {
-        return expiresIn;
+    public long getExpiresInSeconds() {
+        return expiresInSeconds;
     }
 }
