@@ -1,0 +1,32 @@
+name: Deploy Auth Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "api/v1/auth/**"
+      - ".github/workflows/deploy-auth.yml"
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    environment: auth-prod
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Auth Service
+        working-directory: ./api/v1/auth
+        env:
+          SERVICE_PORT: ${{ vars.SERVICE_PORT }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          DB_USER: ${{ vars.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          REDIS_PORT: ${{ vars.REDIS_PORT }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: |
+          docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network
+
+          docker compose up -d --build

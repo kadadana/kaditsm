@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  kaditsm-postgres:
+    image: postgres:16-alpine
+    container_name: kaditsm-postgres-dev
+    environment:
+      POSTGRES_USER: KADITSMTEST
+      POSTGRES_PASSWORD: KADITSMPASS
+      POSTGRES_DB: kaditsm_master
+      DATABASES: "auth_db"
+    ports:
+      - "5434:5432"
+    volumes:
+      - kaditsm_pg_data:/var/lib/postgresql/data
+      - ./scripts/init-multi-dbs.sh:/docker-entrypoint-initdb.d/init-multi-dbs.sh:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U KADITSMTEST -d kaditsm_master" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kaditsm-network
+
+  kaditsm-redis:
+    image: redis:7-alpine
+    container_name: kaditsm-redis-dev
+    ports:
+      - "6380:6379"
+    volumes:
+      - kaditsm_redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kaditsm-network
+
+volumes:
+  kaditsm_pg_data:
+  kaditsm_redis_data:
+
+networks:
+  kaditsm-network:
+    driver: bridge
