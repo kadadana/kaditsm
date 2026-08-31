@@ -1,4 +1,4 @@
-package com.kaditsm.auth.adapter.out.persistence;
+package com.kaditsm.auth.adapter.out.persistence.identity;
 
 import jakarta.persistence.*;
 import java.time.Instant;

@@ -1,4 +1,4 @@
-package com.kaditsm.auth.adapter.out.persistence;
+package com.kaditsm.auth.adapter.out.persistence.identity;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
