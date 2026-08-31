@@ -3,12 +3,12 @@ package com.kaditsm.auth.domain.model;
 public class LoginResult {
     private final String accessToken;
     private final String refreshToken;
-    private final long expiresInSeconds;
+    private final long expiresInMillis;
 
     public LoginResult(String accessToken, String refreshToken, long expiresInSeconds) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
-        this.expiresInSeconds = expiresInSeconds;
+        this.expiresInMillis = expiresInSeconds;
     }
 
     public String getAccessToken() {
@@ -19,7 +19,7 @@ public class LoginResult {
         return refreshToken;
     }
 
-    public long getExpiresInSeconds() {
-        return expiresInSeconds;
+    public long getExpiresInMillis() {
+        return expiresInMillis;
     }
 }

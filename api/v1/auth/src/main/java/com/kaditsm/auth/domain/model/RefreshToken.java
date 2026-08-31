@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public class RefreshToken {
+    private final UUID id;
     private final String token;
     private final UUID identityId;
     private final UUID tenantId;
@@ -12,8 +13,9 @@ public class RefreshToken {
     private final boolean revoked;
     private final Instant createdAt;
 
-    public RefreshToken(String token, UUID identityId, UUID tenantId,
+    public RefreshToken(UUID id, String token, UUID identityId, UUID tenantId,
             Instant expiresAt, boolean revoked, Instant createdAt) {
+        this.id = id;
         this.token = token;
         this.identityId = identityId;
         this.tenantId = tenantId;
@@ -22,9 +24,9 @@ public class RefreshToken {
         this.createdAt = createdAt;
     }
 
-    public static RefreshToken issue(UUID identityId, UUID tenantId,
+    public static RefreshToken issue(UUID id, UUID identityId, UUID tenantId,
             String tokenValue, Duration ttl, Instant now) {
-        return new RefreshToken(tokenValue, identityId, tenantId,
+        return new RefreshToken(id, tokenValue, identityId, tenantId,
                 now.plus(ttl), false, now);
     }
 
@@ -33,23 +35,15 @@ public class RefreshToken {
     }
 
     public RefreshToken revoke() {
-        return new RefreshToken(this.token, this.identityId, this.tenantId,
+        return new RefreshToken(this.id, this.token, this.identityId, this.tenantId,
                 this.expiresAt, true, this.createdAt);
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public UUID getIdentityId() {
-        return identityId;
-    }
-
-    public UUID getTenantId() {
-        return tenantId;
-    }
-
-    public Instant getExpiresAt() {
-        return expiresAt;
-    }
+    public UUID getId() { return id; }
+    public String getToken() { return token; }
+    public UUID getIdentityId() { return identityId; }
+    public UUID getTenantId() { return tenantId; }
+    public Instant getExpiresAt() { return expiresAt; }
+    public boolean isRevoked() { return revoked; }
+    public Instant getCreatedAt() { return createdAt; }
 }

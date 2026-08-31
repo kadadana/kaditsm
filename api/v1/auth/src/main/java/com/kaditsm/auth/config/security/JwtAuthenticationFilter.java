@@ -1,9 +1,7 @@
 package com.kaditsm.auth.config.security;
 
-import com.kaditsm.auth.adapter.out.jwt.TokenProviderAdapter;
-import com.kaditsm.auth.domain.port.out.TokenProviderPort;
+import com.kaditsm.auth.domain.port.out.TokenParserPort;
 
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,10 +18,10 @@ import java.util.UUID;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenProviderPort tokenProviderPort;   // interface
+    private final TokenParserPort tokenParserPort;
 
-    public JwtAuthenticationFilter(TokenProviderPort tokenProviderPort) {
-        this.tokenProviderPort = tokenProviderPort;
+    public JwtAuthenticationFilter(TokenParserPort tokenParserPort) {
+        this.tokenParserPort = tokenParserPort;
     }
 
     @Override
@@ -37,15 +35,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             try {
-                if (tokenProviderPort.validateToken(token)) {
-                    UUID accountId = tokenProviderPort.extractIdentityId(token);
-                    UUID tenantId = tokenProviderPort.extractTenantId(token);
-                    String email = tokenProviderPort.extractEmail(token);
+                if (tokenParserPort.validateToken(token)) {
+                    UUID accountId = tokenParserPort.extractIdentityId(token);
+                    UUID tenantId = tokenParserPort.extractTenantId(token);
+                    String email = tokenParserPort.extractEmail(token);
 
                     UserPrincipal principal = new UserPrincipal(accountId, tenantId, email);
 
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            principal, null, Collections.emptyList());
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
