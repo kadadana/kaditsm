@@ -46,8 +46,8 @@ public class IdentityPersistenceAdapter implements IdentityRepositoryPort {
     }
 
     @Override
-    public Identity save(Identity user) {
-        IdentityJpaEntity entity = identityEntityMapper.toJpaEntity(user);
+    public Identity save(Identity identity) {
+        IdentityJpaEntity entity = identityEntityMapper.toJpaEntity(identity);
         IdentityJpaEntity savedEntity = identityJpaRepository.save(entity);
         return identityEntityMapper.toDomain(savedEntity);
     }

@@ -27,15 +27,13 @@ public class PasswordResetTokenRedisAdapter implements PasswordResetTokenReposit
     @Override
     public void save(PasswordResetToken token) {
         try {
-            // Domain modelini Redis için DTO'ya dönüştür
             RedisPasswordResetTokenDto dto = new RedisPasswordResetTokenDto(
                     token.getToken(),
                     token.getIdentityId().toString(),
                     token.getTenantId().toString(),
                     token.getExpiresAt().toEpochMilli(),
                     token.isUsed(),
-                    token.getCreatedAt().toEpochMilli()
-            );
+                    token.getCreatedAt().toEpochMilli());
 
             String json = objectMapper.writeValueAsString(dto);
             Duration ttl = Duration.between(Instant.now(), token.getExpiresAt());
@@ -63,8 +61,7 @@ public class PasswordResetTokenRedisAdapter implements PasswordResetTokenReposit
                     UUID.fromString(dto.tenantId()),
                     Instant.ofEpochMilli(dto.expiresAtEpochMilli()),
                     dto.used(),
-                    Instant.ofEpochMilli(dto.createdAtEpochMilli())
-            );
+                    Instant.ofEpochMilli(dto.createdAtEpochMilli()));
             return Optional.of(domainModel);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error deserializing password reset token from Redis", e);
@@ -83,6 +80,6 @@ public class PasswordResetTokenRedisAdapter implements PasswordResetTokenReposit
             String tenantId,
             long expiresAtEpochMilli,
             boolean used,
-            long createdAtEpochMilli
-    ) {}
+            long createdAtEpochMilli) {
+    }
 }

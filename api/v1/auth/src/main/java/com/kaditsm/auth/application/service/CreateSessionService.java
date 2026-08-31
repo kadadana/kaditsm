@@ -1,52 +1,78 @@
 package com.kaditsm.auth.application.service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.kaditsm.auth.domain.model.LoginResult;
+import com.kaditsm.auth.domain.model.RefreshToken;
+import com.kaditsm.auth.domain.exception.InactiveAccountException;
+import com.kaditsm.auth.domain.exception.InvalidCredentialsException;
 import com.kaditsm.auth.domain.model.Identity;
 import com.kaditsm.auth.domain.port.in.CreateSessionUseCase;
 import com.kaditsm.auth.domain.port.out.PasswordEncoderPort;
+import com.kaditsm.auth.domain.port.out.RefreshTokenRepositoryPort;
 import com.kaditsm.auth.domain.port.out.TokenProviderPort;
 
 import jakarta.transaction.Transactional;
 
 import com.kaditsm.auth.domain.port.out.IdentityRepositoryPort;
 
-
 @Service
 @Transactional
 public class CreateSessionService implements CreateSessionUseCase {
 
-    private final IdentityRepositoryPort userRepositoryPort;
+    @Value("${jwt.refresh-token-expiration-ms}")
+    private long refreshTokenExpirationInMs;
+
+    private final IdentityRepositoryPort identityRepositoryPort;
     private final PasswordEncoderPort passwordEncoderPort;
     private final TokenProviderPort tokenProviderPort;
+    private final RefreshTokenRepositoryPort refreshTokenRepositoryPort;
 
-    public CreateSessionService(IdentityRepositoryPort userRepositoryPort,
+    public CreateSessionService(IdentityRepositoryPort identityRepositoryPort,
             PasswordEncoderPort passwordEncoderPort,
-            TokenProviderPort tokenProviderPort) {
-        this.userRepositoryPort = userRepositoryPort;
+            TokenProviderPort tokenProviderPort,
+            RefreshTokenRepositoryPort refreshTokenRepositoryPort) {
+
+        this.identityRepositoryPort = identityRepositoryPort;
         this.passwordEncoderPort = passwordEncoderPort;
         this.tokenProviderPort = tokenProviderPort;
+        this.refreshTokenRepositoryPort = refreshTokenRepositoryPort;
     }
 
     @Override
     public LoginResult createSession(CreateSessionCommand command) {
-        Identity user = userRepositoryPort.findByEmail(command.email())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+        Identity identity = identityRepositoryPort.findByEmail(command.email())
+                .orElseThrow(InvalidCredentialsException::new);
 
-        if (!user.isActive()) {
-            throw new RuntimeException("User account is inactive");
+        if (!identity.isActive()) {
+            throw new InactiveAccountException();
         }
 
-        if (!passwordEncoderPort.matches(command.rawPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid credentials");
+        if (!passwordEncoderPort.matches(command.rawPassword(), identity.getPasswordHash())) {
+            throw new InvalidCredentialsException();
         }
 
-        Map<String, Object> extraClaims = Map.of(
-                "tenant_id", user.getTenantId().toString());
+        Map<String, Object> extraClaims = Map.of("tenant_id", identity.getTenantId().toString());
 
-        return tokenProviderPort.generateTokens(user, extraClaims);
+        UUID refreshTokenId = UUID.randomUUID();
+
+        LoginResult result = tokenProviderPort.generateTokens(identity, extraClaims, refreshTokenId);
+
+        RefreshToken refreshTokenRecord = RefreshToken.issue(
+                refreshTokenId,
+                identity.getId(),
+                identity.getTenantId(),
+                result.getRefreshToken(),
+                Duration.ofMillis(refreshTokenExpirationInMs),
+                Instant.now());
+        refreshTokenRepositoryPort.save(refreshTokenRecord);
+
+        return result;
     }
 }
