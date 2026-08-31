@@ -1,6 +1,6 @@
-package com.kaditsm.auth.adapter.out.persistence.mapper;
+package com.kaditsm.auth.adapter.out.persistence.identity.mapper;
 
-import com.kaditsm.auth.adapter.out.persistence.IdentityJpaEntity;
+import com.kaditsm.auth.adapter.out.persistence.identity.IdentityJpaEntity;
 import com.kaditsm.auth.domain.model.Identity;
 import org.springframework.stereotype.Component;
 
