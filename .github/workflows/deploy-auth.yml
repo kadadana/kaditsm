@@ -20,6 +20,8 @@ jobs:
       - name: Deploy Auth Service
         working-directory: ./api/v1/auth
         env:
+          DOCKER_BUILDKIT: 1
+          COMPOSE_DOCKER_CLI_BUILD: 1
           SERVICE_PORT: ${{ vars.SERVICE_PORT }}
           DB_PORT: ${{ vars.DB_PORT }}
           DB_USER: ${{ vars.DB_USER }}
