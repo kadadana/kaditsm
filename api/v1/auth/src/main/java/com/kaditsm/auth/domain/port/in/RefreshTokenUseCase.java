@@ -1,7 +1,7 @@
 package com.kaditsm.auth.domain.port.in;
 
-import com.kaditsm.auth.domain.model.AuthToken;
+import com.kaditsm.auth.domain.model.LoginResult;
 
 public interface RefreshTokenUseCase {
-    AuthToken refresh(String refreshToken);
+    LoginResult refresh(String refreshToken);
 }

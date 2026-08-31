@@ -1,9 +1,9 @@
 package com.kaditsm.auth.domain.port.in;
 
-import com.kaditsm.auth.domain.model.AuthToken;
+import com.kaditsm.auth.domain.model.LoginResult;
 
 public interface CreateSessionUseCase {
-    AuthToken createSession(CreateSessionCommand command);
+    LoginResult createSession(CreateSessionCommand command);
 
     record CreateSessionCommand(String email, String rawPassword) {}
 }

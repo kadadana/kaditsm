@@ -1,6 +1,8 @@
 package com.kaditsm.auth.config.security;
 
-import com.kaditsm.auth.adapter.out.jwt.JwtTokenProviderAdapter;
+import com.kaditsm.auth.adapter.out.jwt.TokenProviderAdapter;
+import com.kaditsm.auth.domain.port.out.TokenProviderPort;
+
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,10 +20,10 @@ import java.util.UUID;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtTokenProviderAdapter jwtTokenProvider;
+    private final TokenProviderPort tokenProviderPort;   // interface
 
-    public JwtAuthenticationFilter(JwtTokenProviderAdapter jwtTokenProvider) {
-        this.jwtTokenProvider = jwtTokenProvider;
+    public JwtAuthenticationFilter(TokenProviderPort tokenProviderPort) {
+        this.tokenProviderPort = tokenProviderPort;
     }
 
     @Override
@@ -35,18 +37,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             try {
-                Claims claims = jwtTokenProvider.parseClaims(token);
+                if (tokenProviderPort.validateToken(token)) {
+                    UUID accountId = tokenProviderPort.extractIdentityId(token);
+                    UUID tenantId = tokenProviderPort.extractTenantId(token);
+                    String email = tokenProviderPort.extractEmail(token);
 
-                UUID accountId = UUID.fromString(claims.getSubject());
-                UUID tenantId = UUID.fromString(claims.get("tenant_id", String.class));
-                String email = claims.get("email", String.class);
+                    UserPrincipal principal = new UserPrincipal(accountId, tenantId, email);
 
-                UserPrincipal principal = new UserPrincipal(accountId, tenantId, email);
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principal,
-                        null, Collections.emptyList());
-
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
             } catch (Exception e) {
                 SecurityContextHolder.clearContext();
             }

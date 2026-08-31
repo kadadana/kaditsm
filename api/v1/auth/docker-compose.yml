@@ -37,6 +37,33 @@ services:
     networks:
       - auth_network
 
+  auth-rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: auth_rabbitmq
+    hostname: auth-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+    ports:
+      - "${RABBITMQ_PORT}:5672"
+      - "${RABBITMQ_MGMT_PORT}:15672"
+    volumes:
+      - auth_rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      auth_network:
+        aliases:
+          - auth-rabbitmq
+      kaditsm-network:
+        aliases:
+          - kaditsm-rabbitmq
+
   auth-service:
     build:
       context: .
@@ -55,6 +82,10 @@ services:
       DB_PASSWORD: ${DB_PASS}
       REDIS_HOST: auth-redis
       REDIS_PORT: 6379
+      RABBITMQ_HOST: auth-rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: ${RABBITMQ_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
       JWT_SECRET: ${JWT_SECRET}
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/swagger-ui.html || exit 1" ]
@@ -74,6 +105,7 @@ services:
 volumes:
   auth_pg_data:
   auth_redis_data:
+  auth_rabbitmq_data:
 
 networks:
   auth_network:

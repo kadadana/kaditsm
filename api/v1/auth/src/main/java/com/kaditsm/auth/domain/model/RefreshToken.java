@@ -1,29 +1,52 @@
 package com.kaditsm.auth.domain.model;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
 public class RefreshToken {
     private final String token;
-    private final UUID userId;
+    private final UUID identityId;
+    private final UUID tenantId;
     private final Instant expiresAt;
+    private final boolean revoked;
+    private final Instant createdAt;
 
-    public RefreshToken(String token, UUID userId, Instant expiresAt) {
+    public RefreshToken(String token, UUID identityId, UUID tenantId,
+            Instant expiresAt, boolean revoked, Instant createdAt) {
         this.token = token;
-        this.userId = userId;
+        this.identityId = identityId;
+        this.tenantId = tenantId;
         this.expiresAt = expiresAt;
+        this.revoked = revoked;
+        this.createdAt = createdAt;
     }
 
-    public boolean isExpired() {
-        return Instant.now().isAfter(expiresAt);
+    public static RefreshToken issue(UUID identityId, UUID tenantId,
+            String tokenValue, Duration ttl, Instant now) {
+        return new RefreshToken(tokenValue, identityId, tenantId,
+                now.plus(ttl), false, now);
+    }
+
+    public boolean isValid(Instant now) {
+        return !revoked && now.isBefore(expiresAt);
+    }
+
+    public RefreshToken revoke() {
+        return new RefreshToken(this.token, this.identityId, this.tenantId,
+                this.expiresAt, true, this.createdAt);
     }
 
     public String getToken() {
         return token;
     }
 
-    public UUID getUserId() {
-        return userId;
+    public UUID getIdentityId() {
+        return identityId;
+    }
+
+    public UUID getTenantId() {
+        return tenantId;
     }
 
     public Instant getExpiresAt() {

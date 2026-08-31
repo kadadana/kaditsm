@@ -25,7 +25,12 @@ jobs:
           DB_USER: ${{ vars.DB_USER }}
           DB_PASS: ${{ secrets.DB_PASS }}
           REDIS_PORT: ${{ vars.REDIS_PORT }}
+          RABBITMQ_PORT: ${{vars.RABBITMQ_PORT}}
+          RABBITMQ_USER: ${{vars.RABBITMQ_USER}}
+          RABBITMQ_MGMT_PORT: ${{vars.RABBITMQ_MGMT_PORT}}
+          RABBITMQ_PASS: ${{vars.RABBITMQ_PASS}}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
         run: |
           docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network
 

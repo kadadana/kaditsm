@@ -3,7 +3,7 @@ package com.kaditsm.auth.adapter.in.web.session;
 import com.kaditsm.auth.adapter.in.web.session.dto.CreateSessionRequest;
 import com.kaditsm.auth.adapter.in.web.session.dto.SessionResponse;
 import com.kaditsm.auth.adapter.in.web.session.mapper.SessionDtoMapper;
-import com.kaditsm.auth.domain.model.AuthToken;
+import com.kaditsm.auth.domain.model.LoginResult;
 import com.kaditsm.auth.domain.port.in.CreateSessionUseCase;
 import com.kaditsm.auth.domain.port.in.TerminateSessionUseCase;
 import jakarta.validation.Valid;
@@ -31,7 +31,7 @@ public class SessionController {
     @PostMapping
     public ResponseEntity<SessionResponse> createSession(@Valid @RequestBody CreateSessionRequest request) {
         CreateSessionUseCase.CreateSessionCommand command = sessionDtoMapper.toCommand(request);
-        AuthToken authToken = createSessionUseCase.createSession(command);
+        LoginResult authToken = createSessionUseCase.createSession(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionDtoMapper.toResponse(authToken));
     }
 
