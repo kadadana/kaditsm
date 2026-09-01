@@ -55,7 +55,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 20s
+      start_period: 5s
     networks:
       auth_network:
         aliases:
@@ -92,7 +92,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 60s
+      start_period: 5s
     depends_on:
       auth-postgres:
         condition: service_healthy
