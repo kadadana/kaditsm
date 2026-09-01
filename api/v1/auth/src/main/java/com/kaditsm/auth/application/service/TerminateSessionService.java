@@ -1,6 +1,10 @@
 package com.kaditsm.auth.application.service;
 
 import com.kaditsm.auth.domain.event.TokenBlacklistedEvent;
+import com.kaditsm.auth.domain.exception.ForbiddenException;
+import com.kaditsm.auth.domain.exception.ResourceNotFoundException;
+import com.kaditsm.auth.domain.exception.UnauthorizedException;
+import com.kaditsm.auth.domain.model.RefreshToken;
 import com.kaditsm.auth.domain.port.in.TerminateSessionUseCase;
 import com.kaditsm.auth.domain.port.out.RefreshTokenRepositoryPort;
 import com.kaditsm.auth.domain.port.out.TokenBlacklistPort;
@@ -32,23 +36,30 @@ public class TerminateSessionService implements TerminateSessionUseCase {
     }
 
     @Override
-    public void terminateSession(String accessToken, String refreshToken) {
-        if (accessToken != null && !accessToken.isBlank()) {
-            UUID identityId = tokenParserPort.extractIdentityId(accessToken);
-            UUID tenantId = tokenParserPort.extractTenantId(accessToken);
-            String jti = tokenParserPort.extractJti(accessToken);
-            Duration remainingTtl = tokenParserPort.getRemainingTtl(accessToken);
-
-            tokenBlacklistPort.blacklistToken(accessToken, remainingTtl);
-
-            Instant now = Instant.now();
-            TokenBlacklistedEvent event = new TokenBlacklistedEvent(
-                    identityId, tenantId, jti, now, now.plus(remainingTtl));
-            tokenEventPublisherPort.publishTokenBlacklisted(event);
+    public void terminateSession(UUID jti, String accessToken) {
+        if (accessToken == null || accessToken.isBlank()) {
+            throw new UnauthorizedException();
         }
 
-        if (refreshToken != null && !refreshToken.isBlank()) {
-            refreshTokenRepositoryPort.revoke(refreshToken);
+
+
+        UUID identityId = tokenParserPort.extractIdentityId(accessToken);
+
+        RefreshToken token = refreshTokenRepositoryPort.findById(jti)
+                .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found"));
+
+        if (!token.getIdentityId().equals(identityId)) {
+            throw new ForbiddenException();
         }
+
+        refreshTokenRepositoryPort.revoke(jti);
+
+        Duration remainingTtl = tokenParserPort.getRemainingTtl(accessToken);
+        tokenBlacklistPort.blacklistToken(jti, remainingTtl);
+
+        tokenEventPublisherPort.publishTokenBlacklisted(
+                new TokenBlacklistedEvent(jti, identityId, Instant.now(),
+                        Instant.now().plus(remainingTtl)));
+
     }
 }

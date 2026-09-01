@@ -41,17 +41,6 @@ public class JwtTokenParserAdapter implements TokenParserPort {
     }
 
     @Override
-    public UUID extractTenantId(String token) {
-        String tenantId = parseClaims(token).get("tenant_id", String.class);
-        return UUID.fromString(tenantId);
-    }
-
-    @Override
-    public String extractEmail(String token) {
-        return parseClaims(token).get("email", String.class);
-    }
-
-    @Override
     public String extractJti(String token) {
         return parseClaims(token).getId();
     }

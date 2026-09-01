@@ -4,4 +4,5 @@ import com.kaditsm.auth.domain.model.LoginResult;
 
 public interface RefreshTokenUseCase {
     LoginResult refresh(String refreshToken);
+
 }

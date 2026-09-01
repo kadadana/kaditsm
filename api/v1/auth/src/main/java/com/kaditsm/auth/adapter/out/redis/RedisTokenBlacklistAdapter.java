@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.UUID;
 
 @Component
 public class RedisTokenBlacklistAdapter implements TokenBlacklistPort {
@@ -17,14 +18,14 @@ public class RedisTokenBlacklistAdapter implements TokenBlacklistPort {
     }
 
     @Override
-    public void blacklistToken(String token, Duration ttl) {
-        String key = BLACKLIST_KEY_PREFIX + token;
+    public void blacklistToken(UUID jti, Duration ttl) {
+        String key = BLACKLIST_KEY_PREFIX + jti;
         redisTemplate.opsForValue().set(key, "revoked", ttl);
     }
 
     @Override
-    public boolean isBlacklisted(String token) {
-        String key = BLACKLIST_KEY_PREFIX + token;
+    public boolean isBlacklisted(UUID jti) {
+        String key = BLACKLIST_KEY_PREFIX + jti;
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
 }

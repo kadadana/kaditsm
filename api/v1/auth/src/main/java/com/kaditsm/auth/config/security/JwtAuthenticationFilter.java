@@ -36,11 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 if (tokenParserPort.validateToken(token)) {
-                    UUID accountId = tokenParserPort.extractIdentityId(token);
-                    UUID tenantId = tokenParserPort.extractTenantId(token);
-                    String email = tokenParserPort.extractEmail(token);
+                    UUID identityId = tokenParserPort.extractIdentityId(token);
 
-                    UserPrincipal principal = new UserPrincipal(accountId, tenantId, email);
+                    UserPrincipal principal = new UserPrincipal(identityId);
 
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             principal, null, Collections.emptyList());

@@ -17,7 +17,6 @@ public class SessionDtoMapper {
         return new SessionResponse(
                 authToken.getAccessToken(),
                 authToken.getRefreshToken(),
-                "Bearer",
-                authToken.getExpiresInMillis());
+                "Bearer");
     }
 }
