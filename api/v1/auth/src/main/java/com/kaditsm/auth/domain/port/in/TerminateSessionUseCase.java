@@ -1,5 +1,7 @@
 package com.kaditsm.auth.domain.port.in;
 
+import java.util.UUID;
+
 public interface TerminateSessionUseCase {
-    void terminateSession(String sessionId, String accessToken);
+    void terminateSession(UUID jti, String accessToken);
 }

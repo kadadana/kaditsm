@@ -8,10 +8,6 @@ public interface TokenParserPort {
 
     UUID extractIdentityId(String token);
 
-    UUID extractTenantId(String token);
-
-    String extractEmail(String token);
-
     String extractJti(String token);
 
     Duration getRemainingTtl(String token);

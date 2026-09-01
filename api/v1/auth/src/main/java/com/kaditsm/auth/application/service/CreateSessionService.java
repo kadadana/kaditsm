@@ -1,6 +1,5 @@
 package com.kaditsm.auth.application.service;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -62,16 +61,10 @@ public class CreateSessionService implements CreateSessionUseCase {
 
         UUID refreshTokenId = UUID.randomUUID();
 
-        LoginResult result = tokenProviderPort.generateTokens(identity, extraClaims, refreshTokenId);
+        refreshTokenRepositoryPort.save(new RefreshToken(refreshTokenId, identity.getId(),
+                Instant.now().plusMillis(refreshTokenExpirationInMs), false, Instant.now()));
 
-        RefreshToken refreshTokenRecord = RefreshToken.issue(
-                refreshTokenId,
-                identity.getId(),
-                identity.getTenantId(),
-                result.getRefreshToken(),
-                Duration.ofMillis(refreshTokenExpirationInMs),
-                Instant.now());
-        refreshTokenRepositoryPort.save(refreshTokenRecord);
+        LoginResult result = tokenProviderPort.generateTokens(identity, extraClaims, refreshTokenId);
 
         return result;
     }

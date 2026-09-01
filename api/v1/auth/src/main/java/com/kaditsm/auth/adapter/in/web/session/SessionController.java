@@ -7,6 +7,9 @@ import com.kaditsm.auth.domain.model.LoginResult;
 import com.kaditsm.auth.domain.port.in.CreateSessionUseCase;
 import com.kaditsm.auth.domain.port.in.TerminateSessionUseCase;
 import jakarta.validation.Valid;
+
+import java.util.UUID;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,15 +40,15 @@ public class SessionController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> terminateSession(
-            @PathVariable("id") String sessionId,
-            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authHeader) {
+            @PathVariable("id") UUID jti,
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = true) String authHeader) {
 
         String accessToken = null;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             accessToken = authHeader.substring(7);
         }
 
-        terminateSessionUseCase.terminateSession(sessionId, accessToken);
+        terminateSessionUseCase.terminateSession(jti, accessToken);
         return ResponseEntity.noContent().build();
     }
 }

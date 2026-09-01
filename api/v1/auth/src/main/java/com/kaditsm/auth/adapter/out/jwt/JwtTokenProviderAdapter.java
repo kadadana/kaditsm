@@ -53,12 +53,12 @@ public class JwtTokenProviderAdapter implements TokenProviderPort {
         String refreshToken = Jwts.builder()
                 .id(refreshTokenId.toString())
                 .subject(identity.getId().toString())
-                .claim("tenant_id", identity.getTenantId().toString())
+                .claim("is_revoked", false)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(refreshExpiry))
                 .signWith(secretKey)
                 .compact();
 
-        return new LoginResult(accessToken, refreshToken, accessTokenExpirationInMs / 1000);
+        return new LoginResult(accessToken, refreshToken);
     }
 }

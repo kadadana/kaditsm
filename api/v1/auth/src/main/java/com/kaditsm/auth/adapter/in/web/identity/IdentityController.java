@@ -59,9 +59,9 @@ public class IdentityController {
             @AuthenticationPrincipal UserPrincipal principal,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        UUID tenantId = principal.tenantId();
-        ;
-        PagedResult<Identity> result = getIdentitiesUseCase.getIdentities(tenantId, page, size);
+        Identity identity = getIdentitiesUseCase.getIdentityById(principal.identityId());
+
+        PagedResult<Identity> result = getIdentitiesUseCase.getIdentities(identity.getTenantId(), page, size);
 
         List<IdentityResponse> content = result.content().stream()
                 .map(identityDtoMapper::toResponse)

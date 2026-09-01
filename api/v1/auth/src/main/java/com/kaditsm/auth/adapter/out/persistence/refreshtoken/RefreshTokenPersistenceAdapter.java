@@ -6,6 +6,7 @@ import com.kaditsm.auth.domain.port.out.RefreshTokenRepositoryPort;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class RefreshTokenPersistenceAdapter implements RefreshTokenRepositoryPort {
@@ -21,23 +22,23 @@ public class RefreshTokenPersistenceAdapter implements RefreshTokenRepositoryPor
     }
 
     @Override
-    public RefreshToken save(RefreshToken refreshToken) {
-        RefreshTokenJpaEntity token = refreshTokenEntityMapper.toJpaEntity(refreshToken);
-        RefreshTokenJpaEntity savedToken = refreshTokenRepositoryPort.save(token);
-        return refreshTokenEntityMapper.toDomain(savedToken);
-    }
-
-    @Override
-    public Optional<RefreshToken> findByToken(String token) {
-        return refreshTokenRepositoryPort.findByToken(token)
+    public Optional<RefreshToken> findById(UUID jti) {
+        return refreshTokenRepositoryPort.findById(jti)
                 .map(refreshTokenEntityMapper::toDomain);
     }
 
     @Override
-    public void revoke(String token) {
-        refreshTokenRepositoryPort.findByToken(token).ifPresent(entity -> {
+    public void revoke(UUID token) {
+        refreshTokenRepositoryPort.findById(token).ifPresent(entity -> {
             entity.setRevoked(true);
             refreshTokenRepositoryPort.save(entity);
         });
+    }
+
+    @Override
+    public RefreshToken save(RefreshToken refreshToken) {
+        RefreshTokenJpaEntity entity = refreshTokenEntityMapper.toJpaEntity(refreshToken);
+        RefreshTokenJpaEntity savedEntity = refreshTokenRepositoryPort.save(entity);
+        return refreshTokenEntityMapper.toDomain(savedEntity);
     }
 }

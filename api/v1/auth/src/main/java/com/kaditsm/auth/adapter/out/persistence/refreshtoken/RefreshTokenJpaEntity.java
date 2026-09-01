@@ -14,14 +14,8 @@ public class RefreshTokenJpaEntity {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
-    @Column(nullable = false, unique = true, length = 512)
-    private String token;
-
     @Column(nullable = false)
     private UUID identityId;
-
-    @Column(nullable = false)
-    private UUID tenantId;
 
     @Column(nullable = false)
     private Instant expiresAt;
@@ -37,16 +31,12 @@ public class RefreshTokenJpaEntity {
 
     public RefreshTokenJpaEntity(
             UUID id,
-            String token,
             UUID identityId,
-            UUID tenantId,
             Instant expiresAt,
             boolean revoked,
             Instant createdAt) {
         this.id = id;
-        this.token = token;
         this.identityId = identityId;
-        this.tenantId = tenantId;
         this.expiresAt = expiresAt;
         this.revoked = revoked;
         this.createdAt = createdAt;
@@ -56,20 +46,8 @@ public class RefreshTokenJpaEntity {
         return id;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public UUID getIdentityId() {
         return identityId;
-    }
-
-    public UUID getTenantId() {
-        return tenantId;
     }
 
     public void setIdentityId(UUID identityId) {
@@ -99,4 +77,5 @@ public class RefreshTokenJpaEntity {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
+
 }

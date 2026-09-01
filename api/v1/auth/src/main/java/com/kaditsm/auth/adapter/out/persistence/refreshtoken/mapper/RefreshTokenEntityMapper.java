@@ -14,9 +14,7 @@ public class RefreshTokenEntityMapper {
         }
         return new RefreshToken(
                 refreshToken.getId(),
-                refreshToken.getToken(),
                 refreshToken.getIdentityId(),
-                refreshToken.getTenantId(),
                 refreshToken.getExpiresAt(),
                 refreshToken.isRevoked(),
                 refreshToken.getCreatedAt());
@@ -28,9 +26,7 @@ public class RefreshTokenEntityMapper {
         }
         return new RefreshTokenJpaEntity(
                 domain.getId(),
-                domain.getToken(),
                 domain.getIdentityId(),
-                domain.getTenantId(),
                 domain.getExpiresAt(),
                 domain.isRevoked(),
                 domain.getCreatedAt());
