@@ -5,6 +5,7 @@ import com.kaditsm.auth.adapter.in.web.session.dto.SessionResponse;
 import com.kaditsm.auth.adapter.in.web.session.mapper.SessionDtoMapper;
 import com.kaditsm.auth.domain.model.LoginResult;
 import com.kaditsm.auth.domain.port.in.CreateSessionUseCase;
+import com.kaditsm.auth.domain.port.in.CreateTokenUseCase;
 import com.kaditsm.auth.domain.port.in.TerminateSessionUseCase;
 import jakarta.validation.Valid;
 
@@ -22,13 +23,31 @@ public class SessionController {
     private final CreateSessionUseCase createSessionUseCase;
     private final TerminateSessionUseCase terminateSessionUseCase;
     private final SessionDtoMapper sessionDtoMapper;
+    private final CreateTokenUseCase createTokenUseCase;
 
     public SessionController(CreateSessionUseCase createSessionUseCase,
             TerminateSessionUseCase terminateSessionUseCase,
-            SessionDtoMapper sessionDtoMapper) {
+            SessionDtoMapper sessionDtoMapper,
+            CreateTokenUseCase createTokenUseCase) {
         this.createSessionUseCase = createSessionUseCase;
         this.terminateSessionUseCase = terminateSessionUseCase;
         this.sessionDtoMapper = sessionDtoMapper;
+        this.createTokenUseCase = createTokenUseCase;
+    }
+
+    @PostMapping("/tokens")
+    public ResponseEntity<SessionResponse> createToken(
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
+
+        String refreshToken = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            refreshToken = authHeader.substring(7);
+        }
+
+        CreateTokenUseCase.CreateTokenCommand command = new CreateTokenUseCase.CreateTokenCommand(refreshToken);
+
+        LoginResult loginResult = createTokenUseCase.createToken(command);
+        return ResponseEntity.status(HttpStatus.CREATED).body(sessionDtoMapper.toResponse(loginResult));
     }
 
     @PostMapping

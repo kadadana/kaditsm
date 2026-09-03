@@ -1,6 +1,6 @@
-// adapter/out/jwt/JwtTokenParserAdapter.java
 package com.kaditsm.auth.adapter.out.jwt;
 
+import com.kaditsm.auth.domain.port.out.JwksKeyProviderPort;
 import com.kaditsm.auth.domain.port.out.TokenParserPort;
 
 import io.jsonwebtoken.Claims;
@@ -19,10 +19,10 @@ import java.util.UUID;
 @Component
 public class JwtTokenParserAdapter implements TokenParserPort {
 
-    private final SecretKey secretKey;
+    private final JwksKeyProviderPort jwkKeyProviderPort;
 
-    public JwtTokenParserAdapter(@Value("${jwt.secret}") String secret) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    public JwtTokenParserAdapter(JwksKeyProviderPort jwkKeyProviderPort) {
+        this.jwkKeyProviderPort = jwkKeyProviderPort;
     }
 
     @Override
@@ -41,8 +41,8 @@ public class JwtTokenParserAdapter implements TokenParserPort {
     }
 
     @Override
-    public String extractJti(String token) {
-        return parseClaims(token).getId();
+    public UUID extractJti(String token) {
+        return UUID.fromString(parseClaims(token).getId());
     }
 
     @Override
@@ -54,7 +54,7 @@ public class JwtTokenParserAdapter implements TokenParserPort {
 
     private Claims parseClaims(String token) {
         return Jwts.parser()
-                .verifyWith(secretKey)
+                .verifyWith(jwkKeyProviderPort.getPublicKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();

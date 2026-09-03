@@ -64,7 +64,10 @@ public class CreateSessionService implements CreateSessionUseCase {
         refreshTokenRepositoryPort.save(new RefreshToken(refreshTokenId, identity.getId(),
                 Instant.now().plusMillis(refreshTokenExpirationInMs), false, Instant.now()));
 
-        LoginResult result = tokenProviderPort.generateTokens(identity, extraClaims, refreshTokenId);
+        RefreshToken refreshTokenEntity = refreshTokenRepositoryPort.findById(refreshTokenId)
+                .orElseThrow(() -> new RuntimeException("Failed to create refresh token"));
+
+        LoginResult result = tokenProviderPort.generateLoginResultWithRefreshToken(refreshTokenEntity, extraClaims);
 
         return result;
     }

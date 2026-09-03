@@ -31,7 +31,8 @@ jobs:
           RABBITMQ_USER: ${{vars.RABBITMQ_USER}}
           RABBITMQ_MGMT_PORT: ${{vars.RABBITMQ_MGMT_PORT}}
           RABBITMQ_PASS: ${{secrets.RABBITMQ_PASS}}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_PRIVATE_KEY: ${{secrets.JWT_PRIVATE_KEY}}
+          JWT_KEY_ID: ${{secrets.JWT_KEY_ID}}
 
         run: |
           docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network
