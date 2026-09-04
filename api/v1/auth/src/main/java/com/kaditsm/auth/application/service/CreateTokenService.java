@@ -74,9 +74,8 @@ public class CreateTokenService implements RefreshTokenUseCase {
                 Instant.now().plus(remainingTtl),
                 false,
                 Instant.now());
-
-        tokenBlacklistPort.blacklistToken(oldRefreshToken.getId(),
-                tokenParserPort.getRemainingTtl(command.refreshToken()));
+                
+        tokenBlacklistPort.blacklistToken(oldRefreshToken.getId(), remainingTtl);
 
         tokenEventPublisher.publishTokenBlacklisted(
                 new TokenBlacklistedEvent(
