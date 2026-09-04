@@ -2,8 +2,9 @@ package com.kaditsm.auth.adapter.out.redis;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kaditsm.auth.application.port.out.PasswordResetTokenRepositoryPort;
 import com.kaditsm.auth.domain.model.PasswordResetToken;
-import com.kaditsm.auth.domain.port.out.PasswordResetTokenRepositoryPort;
+
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 

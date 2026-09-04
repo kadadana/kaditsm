@@ -1,9 +1,10 @@
 package com.kaditsm.auth.adapter.in.web.jwks;
 
-import com.kaditsm.auth.domain.port.in.GetJwkSetUseCase;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.kaditsm.auth.application.port.in.GetJwkSetUseCase;
 
 import java.util.Map;
 

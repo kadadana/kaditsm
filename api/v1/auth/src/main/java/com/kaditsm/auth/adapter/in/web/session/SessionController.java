@@ -1,12 +1,14 @@
 package com.kaditsm.auth.adapter.in.web.session;
 
 import com.kaditsm.auth.adapter.in.web.session.dto.CreateSessionRequest;
+import com.kaditsm.auth.adapter.in.web.session.dto.RefreshTokenRequest;
 import com.kaditsm.auth.adapter.in.web.session.dto.SessionResponse;
 import com.kaditsm.auth.adapter.in.web.session.mapper.SessionDtoMapper;
+import com.kaditsm.auth.application.port.in.CreateSessionUseCase;
+import com.kaditsm.auth.application.port.in.RefreshTokenUseCase;
+import com.kaditsm.auth.application.port.in.TerminateSessionUseCase;
 import com.kaditsm.auth.domain.model.LoginResult;
-import com.kaditsm.auth.domain.port.in.CreateSessionUseCase;
-import com.kaditsm.auth.domain.port.in.CreateTokenUseCase;
-import com.kaditsm.auth.domain.port.in.TerminateSessionUseCase;
+
 import jakarta.validation.Valid;
 
 import java.util.UUID;
@@ -23,12 +25,12 @@ public class SessionController {
     private final CreateSessionUseCase createSessionUseCase;
     private final TerminateSessionUseCase terminateSessionUseCase;
     private final SessionDtoMapper sessionDtoMapper;
-    private final CreateTokenUseCase createTokenUseCase;
+    private final RefreshTokenUseCase createTokenUseCase;
 
     public SessionController(CreateSessionUseCase createSessionUseCase,
             TerminateSessionUseCase terminateSessionUseCase,
             SessionDtoMapper sessionDtoMapper,
-            CreateTokenUseCase createTokenUseCase) {
+            RefreshTokenUseCase createTokenUseCase) {
         this.createSessionUseCase = createSessionUseCase;
         this.terminateSessionUseCase = terminateSessionUseCase;
         this.sessionDtoMapper = sessionDtoMapper;
@@ -36,17 +38,9 @@ public class SessionController {
     }
 
     @PostMapping("/tokens")
-    public ResponseEntity<SessionResponse> createToken(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-
-        String refreshToken = null;
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            refreshToken = authHeader.substring(7);
-        }
-
-        CreateTokenUseCase.CreateTokenCommand command = new CreateTokenUseCase.CreateTokenCommand(refreshToken);
-
-        LoginResult loginResult = createTokenUseCase.createToken(command);
+    public ResponseEntity<SessionResponse> createToken(@RequestBody RefreshTokenRequest request) {
+        var command = new RefreshTokenUseCase.RefreshTokenCommand(request.refreshToken());
+        LoginResult loginResult = createTokenUseCase.refreshToken(command);
         return ResponseEntity.status(HttpStatus.CREATED).body(sessionDtoMapper.toResponse(loginResult));
     }
 

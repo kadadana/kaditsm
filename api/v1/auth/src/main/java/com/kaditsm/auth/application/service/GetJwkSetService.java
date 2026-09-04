@@ -1,8 +1,9 @@
 package com.kaditsm.auth.application.service;
 
-import com.kaditsm.auth.domain.port.in.GetJwkSetUseCase;
-import com.kaditsm.auth.domain.port.out.JwksKeyProviderPort;
 import org.springframework.stereotype.Service;
+
+import com.kaditsm.auth.application.port.in.GetJwkSetUseCase;
+import com.kaditsm.auth.application.port.out.JwksKeyProviderPort;
 
 import java.util.Map;
 

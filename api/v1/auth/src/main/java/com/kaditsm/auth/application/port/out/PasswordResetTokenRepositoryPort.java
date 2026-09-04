@@ -1,4 +1,4 @@
-package com.kaditsm.auth.domain.port.out;
+package com.kaditsm.auth.application.port.out;
 
 import com.kaditsm.auth.domain.model.PasswordResetToken;
 import java.util.Optional;

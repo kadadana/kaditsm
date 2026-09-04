@@ -1,4 +1,4 @@
-package com.kaditsm.auth.domain.port.in;
+package com.kaditsm.auth.application.port.in;
 
 import java.util.Map;
 

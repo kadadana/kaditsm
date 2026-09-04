@@ -1,15 +1,15 @@
 package com.kaditsm.auth.application.service;
 
+import com.kaditsm.auth.application.port.in.TerminateSessionUseCase;
+import com.kaditsm.auth.application.port.out.RefreshTokenRepositoryPort;
+import com.kaditsm.auth.application.port.out.TokenBlacklistPort;
+import com.kaditsm.auth.application.port.out.TokenEventPublisherPort;
+import com.kaditsm.auth.application.port.out.TokenParserPort;
 import com.kaditsm.auth.domain.event.TokenBlacklistedEvent;
 import com.kaditsm.auth.domain.exception.ForbiddenException;
 import com.kaditsm.auth.domain.exception.ResourceNotFoundException;
 import com.kaditsm.auth.domain.exception.UnauthorizedException;
 import com.kaditsm.auth.domain.model.RefreshToken;
-import com.kaditsm.auth.domain.port.in.TerminateSessionUseCase;
-import com.kaditsm.auth.domain.port.out.RefreshTokenRepositoryPort;
-import com.kaditsm.auth.domain.port.out.TokenBlacklistPort;
-import com.kaditsm.auth.domain.port.out.TokenEventPublisherPort;
-import com.kaditsm.auth.domain.port.out.TokenParserPort;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -38,10 +38,8 @@ public class TerminateSessionService implements TerminateSessionUseCase {
     @Override
     public void terminateSession(UUID jti, String accessToken) {
         if (accessToken == null || accessToken.isBlank()) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Access token is required to terminate a session.");
         }
-
-
 
         UUID identityId = tokenParserPort.extractIdentityId(accessToken);
 
@@ -49,7 +47,7 @@ public class TerminateSessionService implements TerminateSessionUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found"));
 
         if (!token.getIdentityId().equals(identityId)) {
-            throw new ForbiddenException();
+            throw new ForbiddenException("You are not authorized to terminate this session");
         }
 
         refreshTokenRepositoryPort.revoke(jti);

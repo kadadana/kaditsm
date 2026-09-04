@@ -3,8 +3,9 @@ package com.kaditsm.auth.adapter.in.web.passwordreset;
 import com.kaditsm.auth.adapter.in.web.passwordreset.dto.CompletePasswordResetRequest;
 import com.kaditsm.auth.adapter.in.web.passwordreset.dto.CreatePasswordResetTokenRequest;
 import com.kaditsm.auth.adapter.in.web.passwordreset.mapper.PasswordResetDtoMapper;
-import com.kaditsm.auth.domain.port.in.CompletePasswordResetUseCase;
-import com.kaditsm.auth.domain.port.in.RequestPasswordResetUseCase;
+import com.kaditsm.auth.application.port.in.CompletePasswordResetUseCase;
+import com.kaditsm.auth.application.port.in.RequestPasswordResetUseCase;
+
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,11 @@
 package com.kaditsm.auth.application.service;
 
+import com.kaditsm.auth.application.port.in.UpdateIdentityUseCase;
+import com.kaditsm.auth.application.port.out.IdentityRepositoryPort;
+import com.kaditsm.auth.domain.exception.InvalidCredentialsException;
+import com.kaditsm.auth.domain.exception.UserNotFoundException;
 import com.kaditsm.auth.domain.model.Identity;
-import com.kaditsm.auth.domain.port.in.UpdateIdentityUseCase;
-import com.kaditsm.auth.domain.port.out.IdentityRepositoryPort;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,14 +25,14 @@ public class UpdateIdentityService implements UpdateIdentityUseCase {
     @Override
     public Identity updateIdentity(UpdateIdentityCommand command) {
         Identity identity = identityRepository.findById(command.accountId())
-                .orElseThrow(() -> new IllegalArgumentException("Identity not found: " + command.accountId()));
+                .orElseThrow(() -> new UserNotFoundException("Identity not found with id: " + command.accountId()));
 
         Identity updated = identity;
 
         if (command.newPassword() != null && !command.newPassword().isBlank()) {
             if (command.currentPassword() == null
                     || !passwordEncoder.matches(command.currentPassword(), identity.getPasswordHash())) {
-                throw new IllegalArgumentException("Invalid current password");
+                throw new InvalidCredentialsException("Current password is incorrect.");
             }
             updated = updated.withPasswordHash(passwordEncoder.encode(command.newPassword()));
         }

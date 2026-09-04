@@ -1,8 +1,9 @@
 package com.kaditsm.auth.application.service;
 
+import com.kaditsm.auth.application.port.in.DeactivateIdentityUseCase;
+import com.kaditsm.auth.application.port.out.IdentityRepositoryPort;
+import com.kaditsm.auth.domain.exception.UserNotFoundException;
 import com.kaditsm.auth.domain.model.Identity;
-import com.kaditsm.auth.domain.port.in.DeactivateIdentityUseCase;
-import com.kaditsm.auth.domain.port.out.IdentityRepositoryPort;
 
 import jakarta.transaction.Transactional;
 
@@ -21,9 +22,9 @@ public class DeactivateIdentityService implements DeactivateIdentityUseCase {
     }
 
     @Override
-    public void deactivate(UUID accountId) {
-        Identity identity = identityRepository.findById(accountId)
-                .orElseThrow(() -> new IllegalArgumentException("Identity not found: " + accountId));
+    public void deactivate(UUID identityId) {
+        Identity identity = identityRepository.findById(identityId)
+                .orElseThrow(() -> new UserNotFoundException("Identity not found with id: " + identityId));
 
         Identity deactivated = identity.deactivate();
         identityRepository.save(deactivated);

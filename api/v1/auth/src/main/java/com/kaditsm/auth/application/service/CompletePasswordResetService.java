@@ -2,7 +2,7 @@ package com.kaditsm.auth.application.service;
 
 import org.springframework.stereotype.Service;
 
-import com.kaditsm.auth.domain.port.in.CompletePasswordResetUseCase;
+import com.kaditsm.auth.application.port.in.CompletePasswordResetUseCase;
 
 import jakarta.transaction.Transactional;
 

@@ -1,8 +1,9 @@
 package com.kaditsm.auth.adapter.out.redis;
 
-import com.kaditsm.auth.domain.port.out.TokenBlacklistPort;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+
+import com.kaditsm.auth.application.port.out.TokenBlacklistPort;
 
 import java.time.Duration;
 import java.util.UUID;

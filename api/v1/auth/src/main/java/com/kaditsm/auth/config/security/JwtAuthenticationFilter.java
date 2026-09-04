@@ -1,7 +1,5 @@
 package com.kaditsm.auth.config.security;
 
-import com.kaditsm.auth.domain.port.out.TokenParserPort;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +8,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import com.kaditsm.auth.application.port.out.TokenParserPort;
 
 import java.io.IOException;
 import java.util.Collections;

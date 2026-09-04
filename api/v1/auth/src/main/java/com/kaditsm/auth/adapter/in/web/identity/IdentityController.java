@@ -5,14 +5,13 @@ import com.kaditsm.auth.adapter.in.web.identity.dto.IdentityResponse;
 import com.kaditsm.auth.adapter.in.web.identity.dto.PagedResponse;
 import com.kaditsm.auth.adapter.in.web.identity.dto.UpdateIdentity;
 import com.kaditsm.auth.adapter.in.web.identity.mapper.IdentityDtoMapper;
+import com.kaditsm.auth.application.port.in.CreateIdentityUseCase;
+import com.kaditsm.auth.application.port.in.DeactivateIdentityUseCase;
+import com.kaditsm.auth.application.port.in.GetIdentitiesUseCase;
+import com.kaditsm.auth.application.port.in.UpdateIdentityUseCase;
+import com.kaditsm.auth.application.port.in.CreateIdentityUseCase.CreateIdentityCommand;
 import com.kaditsm.auth.domain.model.Identity;
 import com.kaditsm.auth.domain.model.PagedResult;
-import com.kaditsm.auth.domain.port.in.DeactivateIdentityUseCase;
-import com.kaditsm.auth.domain.port.in.GetIdentitiesUseCase;
-import com.kaditsm.auth.domain.port.in.CreateIdentityUseCase;
-import com.kaditsm.auth.domain.port.in.CreateIdentityUseCase.CreateIdentityCommand;
-
-import com.kaditsm.auth.domain.port.in.UpdateIdentityUseCase;
 
 import jakarta.validation.Valid;
 

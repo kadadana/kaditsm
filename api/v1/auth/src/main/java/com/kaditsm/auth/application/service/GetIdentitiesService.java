@@ -1,9 +1,11 @@
 package com.kaditsm.auth.application.service;
 
+import com.kaditsm.auth.application.port.in.GetIdentitiesUseCase;
+import com.kaditsm.auth.application.port.out.IdentityRepositoryPort;
+import com.kaditsm.auth.domain.exception.UserNotFoundException;
 import com.kaditsm.auth.domain.model.Identity;
 import com.kaditsm.auth.domain.model.PagedResult;
-import com.kaditsm.auth.domain.port.in.GetIdentitiesUseCase;
-import com.kaditsm.auth.domain.port.out.IdentityRepositoryPort;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,6 @@ public class GetIdentitiesService implements GetIdentitiesUseCase {
     @Override
     public Identity getIdentityById(UUID id) {
         return identityRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Identity not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Identity not found with id: " + id));
     }
 }

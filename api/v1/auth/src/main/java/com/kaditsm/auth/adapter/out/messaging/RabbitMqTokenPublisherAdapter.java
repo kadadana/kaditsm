@@ -1,6 +1,6 @@
 package com.kaditsm.auth.adapter.out.messaging;
 
-import com.kaditsm.auth.domain.port.out.TokenEventPublisherPort;
+import com.kaditsm.auth.application.port.out.TokenEventPublisherPort;
 import com.kaditsm.auth.domain.event.TokenBlacklistedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
