@@ -1,10 +1,10 @@
 package com.kaditsm.auth.application.service;
 
-import com.kaditsm.auth.domain.port.in.RequestPasswordResetUseCase;
-
 import jakarta.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
+
+import com.kaditsm.auth.application.port.in.RequestPasswordResetUseCase;
 
 @Service
 @Transactional

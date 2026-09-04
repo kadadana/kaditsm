@@ -2,8 +2,9 @@ package com.kaditsm.auth.adapter.in.web.identity.mapper;
 
 import com.kaditsm.auth.adapter.in.web.identity.dto.IdentityResponse;
 import com.kaditsm.auth.adapter.in.web.identity.dto.UpdateIdentity;
+import com.kaditsm.auth.application.port.in.UpdateIdentityUseCase;
 import com.kaditsm.auth.domain.model.Identity;
-import com.kaditsm.auth.domain.port.in.UpdateIdentityUseCase;
+
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;

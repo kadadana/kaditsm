@@ -2,8 +2,9 @@ package com.kaditsm.auth.adapter.in.web.session.mapper;
 
 import com.kaditsm.auth.adapter.in.web.session.dto.CreateSessionRequest;
 import com.kaditsm.auth.adapter.in.web.session.dto.SessionResponse;
+import com.kaditsm.auth.application.port.in.CreateSessionUseCase;
 import com.kaditsm.auth.domain.model.LoginResult;
-import com.kaditsm.auth.domain.port.in.CreateSessionUseCase;
+
 import org.springframework.stereotype.Component;
 
 @Component

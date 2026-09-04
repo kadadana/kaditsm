@@ -1,9 +1,10 @@
 package com.kaditsm.auth.adapter.out.mail;
 
-import com.kaditsm.auth.domain.port.out.EmailSenderPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import com.kaditsm.auth.application.port.out.EmailSenderPort;
 
 @Component
 public class LoggingEmailSenderAdapter implements EmailSenderPort {

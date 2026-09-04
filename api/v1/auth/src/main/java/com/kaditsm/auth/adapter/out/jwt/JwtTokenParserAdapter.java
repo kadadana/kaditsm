@@ -1,8 +1,8 @@
 package com.kaditsm.auth.adapter.out.jwt;
 
+import com.kaditsm.auth.application.port.out.JwksKeyProviderPort;
+import com.kaditsm.auth.application.port.out.TokenParserPort;
 import com.kaditsm.auth.domain.model.RefreshToken;
-import com.kaditsm.auth.domain.port.out.JwksKeyProviderPort;
-import com.kaditsm.auth.domain.port.out.TokenParserPort;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
