@@ -1,0 +1,1 @@
+docker run -d --name dev-kaditsm-gateway-redis -p 6370:6379 -v kaditsm-gateway-redis-data:/data --restart unless-stopped redis:alpine redis-server --appendonly yes
