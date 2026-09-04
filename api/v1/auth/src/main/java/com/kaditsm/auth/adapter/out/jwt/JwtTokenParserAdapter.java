@@ -1,17 +1,15 @@
 package com.kaditsm.auth.adapter.out.jwt;
 
+import com.kaditsm.auth.domain.model.RefreshToken;
 import com.kaditsm.auth.domain.port.out.JwksKeyProviderPort;
 import com.kaditsm.auth.domain.port.out.TokenParserPort;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
@@ -33,6 +31,18 @@ public class JwtTokenParserAdapter implements TokenParserPort {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    @Override
+    public RefreshToken parseRefreshToken(String token) {
+        Claims claims = parseClaims(token);
+        UUID jti = UUID.fromString(claims.getId());
+        UUID identityId = UUID.fromString(claims.getSubject());
+        Instant expiresAt = claims.getExpiration().toInstant();
+        boolean revoked = claims.get("is_revoked", Boolean.class);
+        Instant createdAt = claims.getIssuedAt().toInstant();
+
+        return new RefreshToken(jti, identityId, expiresAt, revoked, createdAt);
     }
 
     @Override
