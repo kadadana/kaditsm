@@ -47,14 +47,14 @@ public class CreateSessionService implements CreateSessionUseCase {
     @Override
     public LoginResult createSession(CreateSessionCommand command) {
         Identity identity = identityRepositoryPort.findByEmail(command.email())
-                .orElseThrow(InvalidCredentialsException::new);
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid email or password."));
 
         if (!identity.isActive()) {
-            throw new InactiveAccountException();
+            throw new InactiveAccountException("This account is inactive.");
         }
 
         if (!passwordEncoderPort.matches(command.rawPassword(), identity.getPasswordHash())) {
-            throw new InvalidCredentialsException();
+            throw new InvalidCredentialsException("Invalid email or password.");
         }
 
         Map<String, Object> extraClaims = Map.of("tenant_id", identity.getTenantId().toString());
