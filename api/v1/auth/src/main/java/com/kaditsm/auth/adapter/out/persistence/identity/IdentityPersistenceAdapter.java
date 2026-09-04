@@ -1,9 +1,9 @@
 package com.kaditsm.auth.adapter.out.persistence.identity;
 
 import com.kaditsm.auth.adapter.out.persistence.identity.mapper.IdentityEntityMapper;
+import com.kaditsm.auth.application.port.out.IdentityRepositoryPort;
 import com.kaditsm.auth.domain.model.Identity;
 import com.kaditsm.auth.domain.model.PagedResult;
-import com.kaditsm.auth.domain.port.out.IdentityRepositoryPort;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

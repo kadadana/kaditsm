@@ -1,6 +1,6 @@
 package com.kaditsm.auth.adapter.out.jwt;
 
-import com.kaditsm.auth.domain.port.out.JwksKeyProviderPort;
+import com.kaditsm.auth.application.port.out.JwksKeyProviderPort;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 

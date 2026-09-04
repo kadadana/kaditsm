@@ -9,17 +9,16 @@ import org.springframework.stereotype.Service;
 
 import com.kaditsm.auth.domain.model.LoginResult;
 import com.kaditsm.auth.domain.model.RefreshToken;
+import com.kaditsm.auth.application.port.in.CreateSessionUseCase;
+import com.kaditsm.auth.application.port.out.IdentityRepositoryPort;
+import com.kaditsm.auth.application.port.out.PasswordEncoderPort;
+import com.kaditsm.auth.application.port.out.RefreshTokenRepositoryPort;
+import com.kaditsm.auth.application.port.out.TokenProviderPort;
 import com.kaditsm.auth.domain.exception.InactiveAccountException;
 import com.kaditsm.auth.domain.exception.InvalidCredentialsException;
 import com.kaditsm.auth.domain.model.Identity;
-import com.kaditsm.auth.domain.port.in.CreateSessionUseCase;
-import com.kaditsm.auth.domain.port.out.PasswordEncoderPort;
-import com.kaditsm.auth.domain.port.out.RefreshTokenRepositoryPort;
-import com.kaditsm.auth.domain.port.out.TokenProviderPort;
 
 import jakarta.transaction.Transactional;
-
-import com.kaditsm.auth.domain.port.out.IdentityRepositoryPort;
 
 @Service
 @Transactional

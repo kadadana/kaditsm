@@ -1,4 +1,4 @@
-package com.kaditsm.auth.domain.port.out;
+package com.kaditsm.auth.application.port.out;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;

@@ -1,9 +1,9 @@
 package com.kaditsm.auth.application.service;
 
+import com.kaditsm.auth.application.port.in.DeactivateIdentityUseCase;
+import com.kaditsm.auth.application.port.out.IdentityRepositoryPort;
 import com.kaditsm.auth.domain.exception.UserNotFoundException;
 import com.kaditsm.auth.domain.model.Identity;
-import com.kaditsm.auth.domain.port.in.DeactivateIdentityUseCase;
-import com.kaditsm.auth.domain.port.out.IdentityRepositoryPort;
 
 import jakarta.transaction.Transactional;
 

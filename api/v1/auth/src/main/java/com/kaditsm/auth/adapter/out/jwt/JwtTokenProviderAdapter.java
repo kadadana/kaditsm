@@ -1,10 +1,10 @@
 package com.kaditsm.auth.adapter.out.jwt;
 
+import com.kaditsm.auth.application.port.out.JwksKeyProviderPort;
+import com.kaditsm.auth.application.port.out.TokenProviderPort;
 import com.kaditsm.auth.domain.model.Identity;
 import com.kaditsm.auth.domain.model.LoginResult;
 import com.kaditsm.auth.domain.model.RefreshToken;
-import com.kaditsm.auth.domain.port.out.JwksKeyProviderPort;
-import com.kaditsm.auth.domain.port.out.TokenProviderPort;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;

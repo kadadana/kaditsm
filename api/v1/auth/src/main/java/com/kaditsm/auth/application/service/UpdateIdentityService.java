@@ -1,10 +1,11 @@
 package com.kaditsm.auth.application.service;
 
+import com.kaditsm.auth.application.port.in.UpdateIdentityUseCase;
+import com.kaditsm.auth.application.port.out.IdentityRepositoryPort;
 import com.kaditsm.auth.domain.exception.InvalidCredentialsException;
 import com.kaditsm.auth.domain.exception.UserNotFoundException;
 import com.kaditsm.auth.domain.model.Identity;
-import com.kaditsm.auth.domain.port.in.UpdateIdentityUseCase;
-import com.kaditsm.auth.domain.port.out.IdentityRepositoryPort;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

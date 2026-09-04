@@ -3,10 +3,10 @@ package com.kaditsm.auth.application.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.kaditsm.auth.application.port.in.CreateIdentityUseCase;
+import com.kaditsm.auth.application.port.out.IdentityRepositoryPort;
 import com.kaditsm.auth.domain.exception.EmailAlreadyExistsException;
 import com.kaditsm.auth.domain.model.Identity;
-import com.kaditsm.auth.domain.port.in.CreateIdentityUseCase;
-import com.kaditsm.auth.domain.port.out.IdentityRepositoryPort;
 
 import jakarta.transaction.Transactional;
 

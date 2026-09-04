@@ -1,8 +1,9 @@
 package com.kaditsm.auth.adapter.out.persistence.refreshtoken;
 
 import com.kaditsm.auth.adapter.out.persistence.refreshtoken.mapper.RefreshTokenEntityMapper;
+import com.kaditsm.auth.application.port.out.RefreshTokenRepositoryPort;
 import com.kaditsm.auth.domain.model.RefreshToken;
-import com.kaditsm.auth.domain.port.out.RefreshTokenRepositoryPort;
+
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

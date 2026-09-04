@@ -4,10 +4,11 @@ import com.kaditsm.auth.adapter.in.web.session.dto.CreateSessionRequest;
 import com.kaditsm.auth.adapter.in.web.session.dto.RefreshTokenRequest;
 import com.kaditsm.auth.adapter.in.web.session.dto.SessionResponse;
 import com.kaditsm.auth.adapter.in.web.session.mapper.SessionDtoMapper;
+import com.kaditsm.auth.application.port.in.CreateSessionUseCase;
+import com.kaditsm.auth.application.port.in.RefreshTokenUseCase;
+import com.kaditsm.auth.application.port.in.TerminateSessionUseCase;
 import com.kaditsm.auth.domain.model.LoginResult;
-import com.kaditsm.auth.domain.port.in.CreateSessionUseCase;
-import com.kaditsm.auth.domain.port.in.RefreshTokenUseCase;
-import com.kaditsm.auth.domain.port.in.TerminateSessionUseCase;
+
 import jakarta.validation.Valid;
 
 import java.util.UUID;
