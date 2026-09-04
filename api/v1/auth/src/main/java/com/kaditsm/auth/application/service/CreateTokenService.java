@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.kaditsm.auth.domain.event.TokenBlacklistedEvent;
+import com.kaditsm.auth.domain.exception.InvalidRefreshTokenException;
 import com.kaditsm.auth.domain.model.LoginResult;
 import com.kaditsm.auth.domain.model.RefreshToken;
 import com.kaditsm.auth.domain.port.in.RefreshTokenUseCase;
@@ -44,25 +45,25 @@ public class CreateTokenService implements RefreshTokenUseCase {
     public LoginResult refreshToken(RefreshTokenCommand command) {
 
         if (!tokenParserPort.validateToken(command.refreshToken())) {
-            throw new IllegalArgumentException("Invalid refresh token");
+            throw new InvalidRefreshTokenException("Invalid refresh token");
         }
 
         RefreshToken oldRefreshToken = tokenParserPort.parseRefreshToken(command.refreshToken());
 
         if (oldRefreshToken.getId() == null) {
-            throw new IllegalArgumentException("Invalid refresh token: missing jti");
+            throw new InvalidRefreshTokenException("Invalid refresh token: missing jti");
         }
 
         if (oldRefreshToken.getExpiresAt().isBefore(Instant.now())) {
-            throw new IllegalArgumentException("Refresh token is expired");
+            throw new InvalidRefreshTokenException("Refresh token is expired");
         }
 
         if (tokenBlacklistPort.isBlacklisted(oldRefreshToken.getId())) {
-            throw new IllegalArgumentException("Refresh token is blacklisted");
+            throw new InvalidRefreshTokenException("Refresh token is blacklisted");
         }
 
         if (oldRefreshToken.isRevoked()) {
-            throw new IllegalArgumentException("Refresh token is revoked");
+            throw new InvalidRefreshTokenException("Refresh token is revoked");
         }
 
         var remainingTtl = Duration.between(Instant.now(), oldRefreshToken.getExpiresAt());

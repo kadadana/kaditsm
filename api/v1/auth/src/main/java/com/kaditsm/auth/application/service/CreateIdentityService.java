@@ -3,6 +3,7 @@ package com.kaditsm.auth.application.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.kaditsm.auth.domain.exception.EmailAlreadyExistsException;
 import com.kaditsm.auth.domain.model.Identity;
 import com.kaditsm.auth.domain.port.in.CreateIdentityUseCase;
 import com.kaditsm.auth.domain.port.out.IdentityRepositoryPort;
@@ -23,7 +24,7 @@ public class CreateIdentityService implements CreateIdentityUseCase {
     @Override
     public Identity create(CreateIdentityCommand command) {
         if (identityRepository.findByEmail(command.email()).isPresent()) {
-            throw new IllegalArgumentException("Email already in use: " + command.email());
+            throw new EmailAlreadyExistsException("An identity with the provided email already exists.");
         }
 
         String passwordHash = passwordEncoder.encode(command.rawPassword());

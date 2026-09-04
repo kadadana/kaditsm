@@ -38,10 +38,8 @@ public class TerminateSessionService implements TerminateSessionUseCase {
     @Override
     public void terminateSession(UUID jti, String accessToken) {
         if (accessToken == null || accessToken.isBlank()) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Access token is required to terminate a session.");
         }
-
-
 
         UUID identityId = tokenParserPort.extractIdentityId(accessToken);
 
@@ -49,7 +47,7 @@ public class TerminateSessionService implements TerminateSessionUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Refresh token not found"));
 
         if (!token.getIdentityId().equals(identityId)) {
-            throw new ForbiddenException();
+            throw new ForbiddenException("You are not authorized to terminate this session");
         }
 
         refreshTokenRepositoryPort.revoke(jti);

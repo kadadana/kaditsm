@@ -1,5 +1,6 @@
 package com.kaditsm.auth.application.service;
 
+import com.kaditsm.auth.domain.exception.UserNotFoundException;
 import com.kaditsm.auth.domain.model.Identity;
 import com.kaditsm.auth.domain.model.PagedResult;
 import com.kaditsm.auth.domain.port.in.GetIdentitiesUseCase;
@@ -27,6 +28,6 @@ public class GetIdentitiesService implements GetIdentitiesUseCase {
     @Override
     public Identity getIdentityById(UUID id) {
         return identityRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Identity not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Identity not found with id: " + id));
     }
 }
