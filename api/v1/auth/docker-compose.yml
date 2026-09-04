@@ -89,11 +89,11 @@ services:
       JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
       JWT_KEY_ID: ${JWT_KEY_ID}
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/swagger-ui.html || exit 1" ]
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 5s
+      start_period: 35s
     depends_on:
       auth-postgres:
         condition: service_healthy
