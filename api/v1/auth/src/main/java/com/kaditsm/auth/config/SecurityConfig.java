@@ -22,31 +22,33 @@ public class SecurityConfig {
                 return new BCryptPasswordEncoder();
         }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter)
-            throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .cors(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/actuator/health",
-                                "/.well-known/jwks.json",
-                                "/error",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html")
-                        .permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/sessions").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/sessions/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/identities").permitAll()
-                        .requestMatchers("/api/v1/password-reset-tokens/**").permitAll()
-                        .requestMatchers("/api/v1/identities/**").authenticated()
-                        .anyRequest().authenticated())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        @Bean
+        public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter)
+                        throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .cors(cors -> cors.disable())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                "/actuator/health",
+                                                                "/.well-known/jwks.json",
+                                                                "/error",
+                                                                "/v3/api-docs/**",
+                                                                "/swagger-ui/**",
+                                                                "/swagger-ui.html")
+                                                .permitAll()
 
-        return http.build();
-    }
+                                                .requestMatchers(HttpMethod.POST, "/sessions").permitAll()
+                                                .requestMatchers(HttpMethod.DELETE, "/sessions/**").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/identities").permitAll()
+                                                .requestMatchers("/password-reset-tokens/**").permitAll()
+
+                                                .requestMatchers("/identities/**").authenticated()
+                                                .anyRequest().authenticated())
+                                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+                return http.build();
+        }
 }
