@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/password-reset-tokens")
+@RequestMapping("/password-reset-tokens")
 public class PasswordResetController {
 
     private final RequestPasswordResetUseCase requestPasswordResetUseCase;
