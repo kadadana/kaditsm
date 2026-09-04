@@ -7,6 +7,7 @@ import com.kaditsm.auth.application.port.out.TokenEventPublisherPort;
 import com.kaditsm.auth.application.port.out.TokenParserPort;
 import com.kaditsm.auth.domain.event.TokenBlacklistedEvent;
 import com.kaditsm.auth.domain.exception.ForbiddenException;
+import com.kaditsm.auth.domain.exception.InvalidRefreshTokenException;
 import com.kaditsm.auth.domain.exception.ResourceNotFoundException;
 import com.kaditsm.auth.domain.exception.UnauthorizedException;
 import com.kaditsm.auth.domain.model.RefreshToken;
@@ -41,6 +42,12 @@ public class TerminateSessionService implements TerminateSessionUseCase {
             throw new UnauthorizedException("Access token is required to terminate a session.");
         }
 
+        Boolean isValid = tokenParserPort.validateToken(accessToken);
+
+        if (!isValid) {
+            throw new InvalidRefreshTokenException("This access token is not valid");
+        }
+
         UUID identityId = tokenParserPort.extractIdentityId(accessToken);
 
         RefreshToken token = refreshTokenRepositoryPort.findById(jti)
@@ -52,12 +59,11 @@ public class TerminateSessionService implements TerminateSessionUseCase {
 
         refreshTokenRepositoryPort.revoke(jti);
 
-        Duration remainingTtl = tokenParserPort.getRemainingTtl(accessToken);
+        Duration remainingTtl = Duration.between(Instant.now(), token.getExpiresAt());
         tokenBlacklistPort.blacklistToken(jti, remainingTtl);
 
         tokenEventPublisherPort.publishTokenBlacklisted(
-                new TokenBlacklistedEvent(jti, identityId, Instant.now(),
-                        Instant.now().plus(remainingTtl)));
+                new TokenBlacklistedEvent(jti, identityId, Instant.now(), token.getExpiresAt()));
 
     }
 }
