@@ -29,7 +29,6 @@ func NewBlacklistService(redisAddr string) (*BlacklistService, error) {
 	return &BlacklistService{client: client}, nil
 }
 
-// AddToBlacklist MQ consumer tarafından tetiklenir, jti'yi expire süresi kadar Redis'e yazar
 func (b *BlacklistService) AddToBlacklist(ctx context.Context, jti string, ttl time.Duration) error {
 	key := fmt.Sprintf("blacklist:%s", jti)
 	err := b.client.Set(ctx, key, "revoked", ttl).Err()
@@ -39,7 +38,6 @@ func (b *BlacklistService) AddToBlacklist(ctx context.Context, jti string, ttl t
 	return nil
 }
 
-// IsBlacklisted Gateway handler tarafından her gelen istekte kontrol edilir
 func (b *BlacklistService) IsBlacklisted(ctx context.Context, jti string) (bool, error) {
 	key := fmt.Sprintf("blacklist:%s", jti)
 	val, err := b.client.Get(ctx, key).Result()
