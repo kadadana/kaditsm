@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  gateway-redis:
+    image: redis:7-alpine
+    container_name: gateway_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - gateway_redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - gateway_network
+
+  gateway-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: gateway
+    restart: unless-stopped
+    ports:
+      - "${PORT}:8081"
+    environment:
+      PORT: 8081
+      JWKS_URL: ${JWKS_URL}
+      REDIS_ADDR: gateway_redis:6379
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USER: ${RABBITMQ_USER}
+      RABBITMQ_PASS: ${RABBITMQ_PASS}
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE}
+      RABBITMQ_ROUTING_KEY: ${RABBITMQ_ROUTING_KEY}
+      RABBITMQ_QUEUE: ${RABBITMQ_QUEUE}
+      ROUTES_FILE_PATH: /app/routes.json
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8081/health || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    depends_on:
+      gateway-redis:
+        condition: service_healthy
+    networks:
+      - gateway_network
+      - kaditsm-network
+    volumes:
+      - ./routes.json:/app/routes.json:ro
+
+volumes:
+  gateway_redis_data:
+
+networks:
+  gateway_network:
+    driver: bridge
+  kaditsm-network:
+    name: kaditsm-network
+    external: true

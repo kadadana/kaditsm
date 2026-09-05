@@ -38,7 +38,7 @@ func main() {
 	defer cancel()
 
 	consumer, err := mq.NewBlacklistConsumer(
-		cfg.RabbitMQURL,
+		cfg.RabbitMQURL(),
 		cfg.RabbitMQExchange,
 		cfg.RabbitMQRoutingKey,
 		cfg.RabbitMQQueue,
@@ -53,10 +53,17 @@ func main() {
 		}
 	}
 
-	router := proxy.NewRouter()
+	routes, err := config.LoadRoutes("routes.json")
+	if err != nil {
+		log.Fatalf("Failed to load routes: %v", err)
+	}
 
-	if err := router.AddRoute("/api/v1/auth", cfg.AuthServiceURL, true); err != nil {
-		log.Fatalf("Failed to register auth route: %v", err)
+	router := proxy.NewRouter()
+	for _, r := range routes {
+		if err := router.AddRoute(r.PathPrefix, r.TargetURL, r.StripPath); err != nil {
+			log.Fatalf("Failed to register route %s: %v", r.PathPrefix, err)
+		}
+		log.Printf("[Route] Registered %s -> %s (StripPath: %t)", r.PathPrefix, r.TargetURL, r.StripPath)
 	}
 
 	gatewayHandler := proxy.NewGatewayHandler(router)
