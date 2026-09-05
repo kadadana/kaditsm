@@ -7,47 +7,44 @@ import (
 	"log"
 	"time"
 
+	"gateway/internal/blacklist"
+
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-type Blacklister interface {
-	AddToBlacklist(ctx context.Context, jti string, ttl time.Duration) error
-}
-type TokenBlacklistedEvent struct {
+type TokenBlacklistedPayload struct {
 	TokenJti      string    `json:"tokenJti"`
-	IdentityID    string    `json:"identityId"`
+	IdentityId    string    `json:"identityId"`
 	BlacklistedAt time.Time `json:"blacklistedAt"`
 	ExpiresAt     time.Time `json:"expiresAt"`
 }
 
-type ConsumerConfig struct {
-	AmqpURL      string
-	ExchangeName string
-	RoutingKey   string
-	QueueName    string
+type BlacklistConsumer struct {
+	conn             *amqp.Connection
+	channel          *amqp.Channel
+	queueName        string
+	exchangeName     string
+	routingKey       string
+	blacklistService *blacklist.BlacklistService
 }
 
-type Consumer struct {
-	conn      *amqp.Connection
-	channel   *amqp.Channel
-	blacklist Blacklister
-	cfg       ConsumerConfig
-}
-
-func NewConsumer(cfg ConsumerConfig, bl Blacklister) (*Consumer, error) {
-	conn, err := amqp.Dial(cfg.AmqpURL)
+func NewBlacklistConsumer(
+	amqpURL, exchange, routingKey, queue string,
+	bs *blacklist.BlacklistService,
+) (*BlacklistConsumer, error) {
+	conn, err := amqp.Dial(amqpURL)
 	if err != nil {
-		return nil, fmt.Errorf("rabbitmq connection failed: %w", err)
+		return nil, fmt.Errorf("failed to connect to rabbitmq: %w", err)
 	}
 
 	ch, err := conn.Channel()
 	if err != nil {
 		conn.Close()
-		return nil, fmt.Errorf("failed to open channel: %w", err)
+		return nil, fmt.Errorf("failed to open rabbitmq channel: %w", err)
 	}
 
 	err = ch.ExchangeDeclare(
-		cfg.ExchangeName,
+		exchange,
 		"topic",
 		true,
 		false,
@@ -62,7 +59,7 @@ func NewConsumer(cfg ConsumerConfig, bl Blacklister) (*Consumer, error) {
 	}
 
 	q, err := ch.QueueDeclare(
-		cfg.QueueName,
+		queue,
 		true,
 		false,
 		false,
@@ -77,8 +74,8 @@ func NewConsumer(cfg ConsumerConfig, bl Blacklister) (*Consumer, error) {
 
 	err = ch.QueueBind(
 		q.Name,
-		cfg.RoutingKey,
-		cfg.ExchangeName,
+		routingKey,
+		exchange,
 		false,
 		nil,
 	)
@@ -88,18 +85,20 @@ func NewConsumer(cfg ConsumerConfig, bl Blacklister) (*Consumer, error) {
 		return nil, fmt.Errorf("failed to bind queue to exchange: %w", err)
 	}
 
-	return &Consumer{
-		conn:      conn,
-		channel:   ch,
-		blacklist: bl,
-		cfg:       cfg,
+	return &BlacklistConsumer{
+		conn:             conn,
+		channel:          ch,
+		queueName:        q.Name,
+		exchangeName:     exchange,
+		routingKey:       routingKey,
+		blacklistService: bs,
 	}, nil
 }
 
-func (c *Consumer) Start(ctx context.Context) error {
+func (c *BlacklistConsumer) Start(ctx context.Context) error {
 	msgs, err := c.channel.Consume(
-		c.cfg.QueueName,
-		"",
+		c.queueName,
+		"gateway-blacklist-consumer",
 		false,
 		false,
 		false,
@@ -107,21 +106,44 @@ func (c *Consumer) Start(ctx context.Context) error {
 		nil,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to register consumer: %w", err)
+		return fmt.Errorf("failed to register a consumer: %w", err)
 	}
+
+	log.Printf("[RabbitMQ] Listening on queue '%s' (exchange: '%s', routingKey: '%s')", c.queueName, c.exchangeName, c.routingKey)
 
 	go func() {
 		for {
 			select {
 			case <-ctx.Done():
-				log.Println("MQ consumer stopping...")
+				log.Println("[RabbitMQ] Consumer worker stopped.")
 				return
-			case msg, ok := <-msgs:
+			case d, ok := <-msgs:
 				if !ok {
-					log.Println("MQ channel closed")
+					log.Println("[RabbitMQ] Message delivery channel closed.")
 					return
 				}
-				c.handleMessage(ctx, msg)
+
+				log.Printf("[RabbitMQ] Received message: %s", string(d.Body))
+
+				var payload TokenBlacklistedPayload
+				if err := json.Unmarshal(d.Body, &payload); err != nil {
+					log.Printf("[RabbitMQ] Error parsing payload: %v. Rejecting message.", err)
+					_ = d.Nack(false, false)
+					continue
+				}
+
+				ttl := time.Until(payload.ExpiresAt)
+				if ttl <= 0 {
+					ttl = 24 * time.Hour
+				}
+
+				if err := c.blacklistService.AddToBlacklist(ctx, payload.TokenJti, ttl); err != nil {
+					log.Printf("[RabbitMQ] Failed to write to Redis: %v. Requeuing...", err)
+					_ = d.Nack(false, true)
+					continue
+				}
+
+				log.Printf("[RabbitMQ] JTI successfully blacklisted in Redis: %s (TTL: %v, IdentityId: %s)", payload.TokenJti, ttl, payload.IdentityId)
 			}
 		}
 	}()
@@ -129,31 +151,7 @@ func (c *Consumer) Start(ctx context.Context) error {
 	return nil
 }
 
-func (c *Consumer) handleMessage(ctx context.Context, msg amqp.Delivery) {
-	var evt TokenBlacklistedEvent
-	if err := json.Unmarshal(msg.Body, &evt); err != nil {
-		log.Printf("Invalid TokenBlacklistedEvent payload: %v", err)
-		_ = msg.Nack(false, false)
-		return
-	}
-
-	remaining := time.Until(evt.ExpiresAt)
-	if remaining <= 0 {
-		_ = msg.Ack(false)
-		return
-	}
-
-	if err := c.blacklist.AddToBlacklist(ctx, evt.TokenJti, remaining); err != nil {
-		log.Printf("Failed to blacklist jti %s: %v", evt.TokenJti, err)
-		_ = msg.Nack(false, true)
-		return
-	}
-
-	log.Printf("Token blacklisted successfully: jti=%s, remaining=%v", evt.TokenJti, remaining)
-	_ = msg.Ack(false)
-}
-
-func (c *Consumer) Close() {
+func (c *BlacklistConsumer) Close() {
 	if c.channel != nil {
 		_ = c.channel.Close()
 	}
