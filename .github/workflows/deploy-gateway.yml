@@ -1,0 +1,40 @@
+name: Deploy Gateway Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "api/v1/gateway/**"
+      - ".github/workflows/deploy-gateway.yml"
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    environment: gateway-prod
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Gateway Service
+        working-directory: ./api/v1/gateway
+        env:
+          DOCKER_BUILDKIT: 1
+          COMPOSE_DOCKER_CLI_BUILD: 1
+          PORT: ${{ vars.PORT }}
+          REDIS_PORT: ${{ vars.REDIS_PORT }}
+          JWKS_URL: ${{ vars.JWKS_URL }}
+          RABBITMQ_HOST: ${{ vars.RABBITMQ_HOST }}
+          RABBITMQ_PORT: ${{ vars.RABBITMQ_PORT }}
+          RABBITMQ_USER: ${{ vars.RABBITMQ_USER }}
+          RABBITMQ_PASS: ${{ secrets.RABBITMQ_PASS }}
+          RABBITMQ_EXCHANGE: ${{ vars.RABBITMQ_EXCHANGE }}
+          RABBITMQ_ROUTING_KEY: ${{ vars.RABBITMQ_ROUTING_KEY }}
+          RABBITMQ_QUEUE: ${{ vars.RABBITMQ_QUEUE }}
+        run: |
+          docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network
+
+          docker compose up -d --build gateway-service --wait --wait-timeout 45
+
+          docker image prune -f
