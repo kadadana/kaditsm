@@ -22,9 +22,17 @@ I chose this project because it naturally requires a large number of modules and
 
 This is purely a learning project, not a commercial product. That said, the goal is to work through realistic, production-style scenarios rather than toy examples, in order to get a genuine feel for how these systems are architected and operated in the industry. Decisions, service boundaries, and technology choices are expected to evolve as the project progresses and as new things are learned.
 
-## Architecture Overview
-
+## Backend Architecture Overview
+ 
 The system is composed of independent microservices communicating over REST, gRPC, and asynchronous messaging (RabbitMQ/Kafka), each owning its own data store. Services are intentionally implemented in different languages and with different architectural styles, so that the same kinds of problems (authentication, data consistency, event handling, etc.) can be explored through multiple approaches.
+ 
+```mermaid
+flowchart LR
+    Client[Client / Frontend] --> Gateway[Gateway]
+    Gateway --> Services[Microservices]
+```
+ 
+Each service's internal architecture, tech stack, and implementation details live in its own directory under `api/v1/<service-name>`.
 
 ## Services & Tech Stack
 
