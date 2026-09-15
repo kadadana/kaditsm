@@ -1,0 +1,76 @@
+services:
+  tenant-postgres:
+    image: postgres:16-alpine
+    container_name: tenant_postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5436}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tenant_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - tenant_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-tenant_db}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - tenant-network
+
+  tenant-rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: tenant_rabbitmq
+    restart: unless-stopped
+    ports:
+      - "${RABBITMQ_PORT:-5674}:5672"
+      - "${RABBITMQ_MGMT_PORT:-15675}:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
+    volumes:
+      - tenant_rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tenant-network
+      - kaditsm-network
+
+  tenant-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tenant_service
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8082}:8082"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Postgres: "Host=tenant-postgres;Port=5432;Database=${POSTGRES_DB:-tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
+      RABBITMQ_HOST: tenant-rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
+    depends_on:
+      tenant-postgres:
+        condition: service_healthy
+      tenant-rabbitmq:
+        condition: service_healthy
+    networks:
+      - tenant-network
+      - kaditsm-network
+
+volumes:
+  tenant_postgres_data:
+  tenant_rabbitmq_data:
+
+networks:
+  tenant-network:
+    driver: bridge
+  kaditsm-network:
+    name: kaditsm-network
+    external: true
