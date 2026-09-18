@@ -21,14 +21,17 @@ public class JwtTokenProviderAdapter implements TokenProviderPort {
         private final JwksKeyProviderPort jwksKeyProviderPort;
         private final long accessTokenExpirationInMs;
         private final long refreshTokenExpirationInMs;
+        private final String issuer;
 
         public JwtTokenProviderAdapter(
                         @Value("${jwt.access-token-expiration-ms}") long accessTokenExpirationInMs,
                         @Value("${jwt.refresh-token-expiration-ms}") long refreshTokenExpirationInMs,
+                        @Value("${jwt.issuer}") String issuer,
                         JwksKeyProviderPort jwksKeyProviderPort) {
                 this.accessTokenExpirationInMs = accessTokenExpirationInMs;
                 this.refreshTokenExpirationInMs = refreshTokenExpirationInMs;
                 this.jwksKeyProviderPort = jwksKeyProviderPort;
+                this.issuer = issuer;
         }
 
         @Override
@@ -39,6 +42,7 @@ public class JwtTokenProviderAdapter implements TokenProviderPort {
 
                 String refreshToken = Jwts.builder()
                                 .id(refreshTokenId.toString())
+                                .issuer(issuer)
                                 .subject(identity.getId().toString())
                                 .claim("is_revoked", false)
                                 .issuedAt(Date.from(now))
@@ -60,6 +64,7 @@ public class JwtTokenProviderAdapter implements TokenProviderPort {
                                 .keyId(jwksKeyProviderPort.getKeyId())
                                 .and()
                                 .id(refreshTokenEntity.getId().toString())
+                                .issuer(issuer)
                                 .subject(refreshTokenEntity.getIdentityId().toString())
                                 .claim("is_revoked", refreshTokenEntity.isRevoked())
                                 .issuedAt(Date.from(now))
@@ -72,6 +77,7 @@ public class JwtTokenProviderAdapter implements TokenProviderPort {
                                 .keyId(jwksKeyProviderPort.getKeyId())
                                 .and()
                                 .id(UUID.randomUUID().toString())
+                                .issuer(issuer)
                                 .subject(refreshTokenEntity.getIdentityId().toString())
                                 .claims(extraClaims)
                                 .issuedAt(Date.from(now))

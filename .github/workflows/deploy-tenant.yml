@@ -31,12 +31,11 @@ jobs:
                   RABBITMQ_MGMT_PORT: ${{ vars.RABBITMQ_MGMT_PORT }}
                   RABBITMQ_USER: ${{ vars.RABBITMQ_USER }}
                   RABBITMQ_PASS: ${{ secrets.RABBITMQ_PASS }}
+                  JWKS_URL: ${{vars.JWKS_URL}}
+                  JWT_ISSUER: ${{vars.JWT_ISSUER}}
               run: |
-                  # Ortak köprü ağını doğrula / oluştur
                   docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network
 
-                  # DB ve RabbitMQ dahil tüm compose yapısını başlat
                   docker compose up -d --build --wait --wait-timeout 60
 
-                  # Kullanılmayan eski imajları temizle
                   docker image prune -f

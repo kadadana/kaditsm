@@ -26,7 +26,7 @@ public class RefreshTokenJpaEntity {
     @Column(nullable = false)
     private Instant createdAt;
 
-    public RefreshTokenJpaEntity() {
+    protected RefreshTokenJpaEntity() {
     }
 
     public RefreshTokenJpaEntity(

@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:-kaditsmpass}
       POSTGRES_DB: postgres
     ports:
-      - "5436:5432"
+      - "${DEV_POSTGRES_PORT}:5432"
     volumes:
       - dev-kaditsm-postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -21,12 +21,26 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: dev-kaditsm-redis
+    container_name: dev-kaditsm-gateway-redis
     restart: unless-stopped
     ports:
-      - "6382:6379"
+      - "${DEV_GATEWAY_REDIS_PORT}:6379"
     volumes:
-      - dev-kaditsm-redis-data:/data
+      - dev-kaditsm-gateway-redis-data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis2:
+    image: redis:7-alpine
+    container_name: dev-kaditsm-auth-redis
+    restart: unless-stopped
+    ports:
+      - "${DEV_AUTH_REDIS_PORT}:6379"
+    volumes:
+      - dev-kaditsm-auth-redis-data:/data
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
@@ -41,8 +55,8 @@ services:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
     ports:
-      - "5672:5672"
-      - "15673:15672"
+      - "${DEV_RABBITMQ_PORT}:5672"
+      - "${DEV_RABBITMQ_MGMT_PORT}:15672"
     volumes:
       - dev-kaditsm-rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
@@ -55,3 +69,4 @@ volumes:
   dev-kaditsm-postgres-data:
   dev-kaditsm-redis-data:
   dev-kaditsm-rabbitmq-data:
+  dev-kaditsm-auth-redis-data:
