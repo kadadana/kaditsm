@@ -74,7 +74,6 @@ public class PasswordResetTokenRedisAdapter implements PasswordResetTokenReposit
         redisTemplate.delete(KEY_PREFIX + token);
     }
 
-    // Redis serialization için basit DTO
     private record RedisPasswordResetTokenDto(
             String token,
             String identityId,

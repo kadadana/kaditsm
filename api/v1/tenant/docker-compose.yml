@@ -51,10 +51,14 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__Postgres: "Host=tenant-postgres;Port=5432;Database=${POSTGRES_DB:-tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
-      RABBITMQ_HOST: tenant-rabbitmq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USER: ${RABBITMQ_USER:-guest}
-      RABBITMQ_PASS: ${RABBITMQ_PASS:-guest}
+      RabbitMq__HostName: tenant-rabbitmq
+      RabbitMq__Port: "5672"
+      RabbitMq__UserName: ${RABBITMQ_USER:-guest}
+      RabbitMq__Password: ${RABBITMQ_PASS:-guest}
+      RabbitMq__Exchange: tenant.events
+      Jwt__JwksUrl: ${JWKS_URL}
+      Jwt__Issuer: ${JWT_ISSUER}
+
     depends_on:
       tenant-postgres:
         condition: service_healthy

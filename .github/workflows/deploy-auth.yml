@@ -33,6 +33,7 @@ jobs:
           RABBITMQ_PASS: ${{secrets.RABBITMQ_PASS}}
           JWT_PRIVATE_KEY: ${{secrets.JWT_PRIVATE_KEY}}
           JWT_KEY_ID: ${{secrets.JWT_KEY_ID}}
+          JWT_ISSUER: ${{vars.JWT_ISSUER}}
 
         run: |
           docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network

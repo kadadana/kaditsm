@@ -1,5 +1,6 @@
 namespace TenantService.Adapter.In.Web.Controllers;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TenantService.Adapter.In.Web.Mappers;
 using TenantService.Adapter.In.Web.Models;
@@ -35,6 +36,7 @@ public class TenantsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Policy = "ServiceOnly")]
     public async Task<ActionResult<TenantDto>> Create([FromBody] CreateTenantRequest request)
     {
         try
@@ -50,6 +52,7 @@ public class TenantsController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Policy = "TenantMember")]
     public async Task<ActionResult<TenantDto>> GetById(Guid id)
     {
         try
@@ -64,6 +67,7 @@ public class TenantsController : ControllerBase
     }
 
     [HttpPatch("{id}")]
+    [Authorize(Policy = "TenantMember")]
     public async Task<ActionResult<TenantDto>> Update(Guid id, [FromBody] UpdateTenantRequest request)
     {
         try
@@ -78,6 +82,7 @@ public class TenantsController : ControllerBase
     }
 
     [HttpPost("{id}/suspend")]
+    [Authorize(Policy = "PlatformAdmin")]
     public async Task<IActionResult> Suspend(Guid id)
     {
         try
@@ -96,6 +101,7 @@ public class TenantsController : ControllerBase
     }
 
     [HttpPost("{id}/activate")]
+    [Authorize(Policy = "PlatformAdmin")]
     public async Task<IActionResult> Reactivate(Guid id)
     {
         try
@@ -114,6 +120,7 @@ public class TenantsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Policy = "PlatformAdmin")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try

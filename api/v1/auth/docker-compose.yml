@@ -88,6 +88,7 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
       JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
       JWT_KEY_ID: ${JWT_KEY_ID}
+      JWT_ISSUER: ${JWT_ISSUER}
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
       interval: 3s
