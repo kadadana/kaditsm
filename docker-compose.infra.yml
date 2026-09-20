@@ -9,10 +9,20 @@ services:
       POSTGRES_USER: ${POSTGRES_ADMIN_USER:-kaditsmdev}
       POSTGRES_PASSWORD: ${POSTGRES_ADMIN_PASSWORD:-kaditsmpass}
       POSTGRES_DB: postgres
+      AUTH_DB_NAME: ${AUTH_DB_NAME:-auth_db}
+      AUTH_DB_USER: ${AUTH_DB_USER:-auth_user}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:-auth_pass}
+      TENANT_DB_NAME: ${TENANT_DB_NAME:-tenant_db}
+      TENANT_DB_USER: ${TENANT_DB_USER:-tenant_user}
+      TENANT_DB_PASSWORD: ${TENANT_DB_PASSWORD:-tenant_pass}
+      USER_DB_NAME: ${USER_DB_NAME:-user_db}
+      USER_DB_USER: ${USER_DB_USER:-user_user}
+      USER_DB_PASSWORD: ${USER_DB_PASSWORD:-user_pass}
     ports:
       - "${DEV_POSTGRES_PORT}:5432"
     volumes:
       - dev-kaditsm-postgres-data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_ADMIN_USER:-kaditsmdev} -d postgres" ]
       interval: 5s
@@ -65,8 +75,38 @@ services:
       timeout: 5s
       retries: 5
 
+  kafka:
+    image: apache/kafka:3.9.0
+    container_name: dev-kaditsm-kafka
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: INTERNAL://:19092,EXTERNAL://:${DEV_KAFKA_PORT},CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:19092,EXTERNAL://${DEV_KAFKA_HOST:?set DEV_KAFKA_HOST}:${DEV_KAFKA_PORT}
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    ports:
+      - "${DEV_KAFKA_PORT}:${DEV_KAFKA_PORT}"
+    volumes:
+      - dev-kaditsm-kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:19092 > /dev/null 2>&1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+
 volumes:
   dev-kaditsm-postgres-data:
-  dev-kaditsm-redis-data:
+  dev-kaditsm-gateway-redis-data:
   dev-kaditsm-rabbitmq-data:
   dev-kaditsm-auth-redis-data:
+  dev-kaditsm-kafka-data:

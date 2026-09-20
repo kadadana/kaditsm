@@ -1,0 +1,38 @@
+name: Deploy User Service
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - "api/v1/user/**"
+            - ".github/workflows/deploy-user.yml"
+
+jobs:
+    deploy:
+        runs-on: self-hosted
+        environment: user-prod
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Deploy User Service
+              working-directory: ./api/v1/user
+              env:
+                  DOCKER_BUILDKIT: 1
+                  COMPOSE_DOCKER_CLI_BUILD: 1
+                  SERVICE_PORT: ${{ vars.SERVICE_PORT }}
+                  DB_PORT: ${{ vars.DB_PORT }}
+                  DB_USER: ${{ vars.DB_USER }}
+                  DB_PASS: ${{ secrets.DB_PASS }}
+                  JWT_JWKS_URL: ${{ vars.JWT_JWKS_URL }}
+                  JWT_ISSUER: ${{ vars.JWT_ISSUER }}
+                  JWT_REQUIRE_HTTPS: ${{ vars.JWT_REQUIRE_HTTPS }}
+
+              run: |
+                  docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network
+
+                  docker compose up -d --build user-service --wait --wait-timeout 120
+
+                  docker image prune -f
