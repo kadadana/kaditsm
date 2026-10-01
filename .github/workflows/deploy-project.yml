@@ -1,0 +1,36 @@
+name: Deploy Project Service
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "api/v1/project/**"
+      - ".github/workflows/deploy-project.yml"
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    environment: project-prod
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy Project Service
+        working-directory: ./api/v1/project
+        env:
+          DOCKER_BUILDKIT: 1
+          COMPOSE_DOCKER_CLI_BUILD: 1
+          SERVICE_PORT: ${{ vars.SERVICE_PORT }}
+          DB_PORT: ${{ vars.DB_PORT }}
+          DB_USER: ${{ vars.DB_USER }}
+          DB_PASS: ${{ secrets.DB_PASS }}
+          JWT_JWKS_URL: ${{ vars.JWT_JWKS_URL }}
+          JWT_ISSUER: ${{ vars.JWT_ISSUER }}
+        run: |
+          docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network
+
+          docker compose up -d --build project-service --wait --wait-timeout 45
+
+          docker image prune -f

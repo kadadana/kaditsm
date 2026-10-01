@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  project-postgres:
+    image: postgres:16-alpine
+    container_name: project_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: project_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - project_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - project_network
+
+  project-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: project_service
+    restart: unless-stopped
+    ports:
+      - "${SERVICE_PORT}:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      PORT: 8080
+      DB_HOST: project-postgres
+      DB_PORT: 5432
+      DB_NAME: project_db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASS}
+      JWT_JWKS_URL: ${JWT_JWKS_URL}
+      JWT_ISSUER: ${JWT_ISSUER}
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 12s
+    depends_on:
+      project-postgres:
+        condition: service_healthy
+    networks:
+      - project_network
+      - kaditsm-network
+
+volumes:
+  project_pg_data:
+
+networks:
+  project_network:
+    driver: bridge
+  kaditsm-network:
+    name: kaditsm-network
+    external: true
