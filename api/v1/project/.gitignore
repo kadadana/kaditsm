@@ -32,4 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
-application.properties
+### Application Secrets & Local Configs
+*.env
+application-dev.properties
+application-local.yml
+application-local.yaml
