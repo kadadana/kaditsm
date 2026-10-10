@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   auth-postgres:
     image: postgres:16-alpine
@@ -12,7 +10,7 @@ services:
     ports:
       - "${DB_PORT}:5432"
     volumes:
-      - auth_pg_data:/var/lib/postgresql/data
+      - auth-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 5s
@@ -51,7 +49,7 @@ services:
     volumes:
       - auth-rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
-      test: [ "CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/5672'" ]
+      test: [ "CMD-SHELL", "nc -z localhost 5672" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -90,11 +88,11 @@ services:
       JWT_KEY_ID: ${JWT_KEY_ID}
       JWT_ISSUER: ${JWT_ISSUER}
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
-      interval: 3s
-      timeout: 3s
-      retries: 10
-      start_period: 12s
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1" ]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
     depends_on:
       auth-postgres:
         condition: service_healthy
