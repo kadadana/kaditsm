@@ -1,9 +1,7 @@
-name: kaditsm-user
-
 services:
-  user-db:
+  user-postgres:
     image: postgres:16-alpine
-    container_name: kaditsm-user-db
+    container_name: user-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -12,7 +10,7 @@ services:
     ports:
       - "${DB_PORT}:5432"
     volumes:
-      - user-db-data:/var/lib/postgresql/data
+      - user-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d user_db" ]
       interval: 5s
@@ -20,50 +18,50 @@ services:
       retries: 5
     networks: [ kaditsm-network ]
 
-  kafka:
+  user-kafka:
     image: apache/kafka:3.9.0
-    container_name: kaditsm-kafka
+    container_name: user-kafka
     restart: unless-stopped
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://user-kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@user-kafka:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_LOG_DIRS: /var/lib/user-kafka/data
     volumes:
-      - kafka-data:/var/lib/kafka/data
+      - user-kafka-data:/var/lib/user-kafka/data
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1" ]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-      start_period: 20s
+      test: [ "CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/9092'" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     networks: [ kaditsm-network ]
 
   user-service:
     build: .
-    container_name: kaditsm-user-service
+    container_name: user-service
     restart: unless-stopped
     environment:
-      ConnectionStrings__UserDb: Host=user-db;Port=5432;Database=user_db;Username=${DB_USER};Password=${DB_PASS}
+      ConnectionStrings__UserDb: Host=user-postgres;Port=5432;Database=user_db;Username=${DB_USER};Password=${DB_PASS}
       Jwt__JwksUrl: ${JWT_JWKS_URL}
       Jwt__Issuer: ${JWT_ISSUER}
       Jwt__RequireHttpsMetadata: ${JWT_REQUIRE_HTTPS:-true}
-      Kafka__BootstrapServers: kafka:9092
+      Kafka__BootstrapServers: user-kafka:9092
       Database__MigrateOnStartup: "true"
     ports:
       - "${SERVICE_PORT}:8080"
     depends_on:
-      user-db:
+      user-postgres:
         condition: service_healthy
-      kafka:
+      user-kafka:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "curl", "-fsS", "http://localhost:8080/health" ]
@@ -79,5 +77,5 @@ networks:
     external: true
 
 volumes:
-  user-db-data:
-  kafka-data:
+  user-postgres-data:
+  user-kafka-data:
