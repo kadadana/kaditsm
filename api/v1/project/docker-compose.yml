@@ -3,7 +3,7 @@ version: '3.8'
 services:
   project-postgres:
     image: postgres:16-alpine
-    container_name: project_postgres
+    container_name: project-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: project_db
@@ -12,20 +12,20 @@ services:
     ports:
       - "${DB_PORT}:5432"
     volumes:
-      - project_pg_data:/var/lib/postgresql/data
+      - project-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
-      - project_network
+      - project-network
 
   project-service:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: project_service
+    container_name: project-service
     restart: unless-stopped
     ports:
       - "${SERVICE_PORT}:8080"
@@ -39,6 +39,15 @@ services:
       DB_PASSWORD: ${DB_PASS}
       JWT_JWKS_URL: ${JWT_JWKS_URL}
       JWT_ISSUER: ${JWT_ISSUER}
+      JAVA_TOOL_OPTIONS: >-
+        -XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -XX:InitialRAMPercentage=40.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+ExitOnOutOfMemoryError
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 384M
+        reservations:
+          memory: 128M
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
       interval: 3s
@@ -49,14 +58,14 @@ services:
       project-postgres:
         condition: service_healthy
     networks:
-      - project_network
+      - project-network
       - kaditsm-network
 
 volumes:
-  project_pg_data:
+  project-postgres-data:
 
 networks:
-  project_network:
+  project-network:
     driver: bridge
   kaditsm-network:
     name: kaditsm-network
