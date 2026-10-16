@@ -94,8 +94,17 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_LOG_DIRS: /var/lib/kafka/data
+      KAFKA_HEAP_OPTS: "-Xms96m -Xmx256m"
+      KAFKA_JVM_PERFORMANCE_OPTS: "-XX:+UseG1GC -XX:MaxGCPauseMillis=20"
     ports:
       - "${DEV_KAFKA_PORT}:${DEV_KAFKA_PORT}"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 384M
+        reservations:
+          memory: 192M
     volumes:
       - dev-kaditsm-kafka-data:/var/lib/kafka/data
     healthcheck:

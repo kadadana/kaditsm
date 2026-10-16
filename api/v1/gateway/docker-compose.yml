@@ -3,19 +3,19 @@ version: '3.8'
 services:
   gateway-redis:
     image: redis:7-alpine
-    container_name: gateway_redis
+    container_name: gateway-redis
     restart: unless-stopped
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
-      - gateway_redis_data:/data
+      - gateway-redis-data:/data
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
     networks:
-      - gateway_network
+      - gateway-network
 
   gateway-service:
     build:
@@ -28,7 +28,7 @@ services:
     environment:
       PORT: 8080
       JWKS_URL: ${JWKS_URL}
-      REDIS_ADDR: gateway_redis:6379
+      REDIS_ADDR: gateway-redis:6379
       RABBITMQ_HOST: ${RABBITMQ_HOST}
       RABBITMQ_PORT: ${RABBITMQ_PORT}
       RABBITMQ_USER: ${RABBITMQ_USER}
@@ -47,16 +47,16 @@ services:
       gateway-redis:
         condition: service_healthy
     networks:
-      - gateway_network
+      - gateway-network
       - kaditsm-network
     volumes:
       - ./routes.json:/app/routes.json:ro
 
 volumes:
-  gateway_redis_data:
+  gateway-redis-data:
 
 networks:
-  gateway_network:
+  gateway-network:
     driver: bridge
   kaditsm-network:
     name: kaditsm-network

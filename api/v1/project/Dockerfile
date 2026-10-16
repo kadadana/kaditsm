@@ -9,6 +9,19 @@ RUN --mount=type=cache,target=/root/.m2 mvn package -DskipTests -B -q
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["java", \
+  "-XX:+UseContainerSupport", \
+  "-XX:MaxRAMPercentage=70.0", \
+  "-XX:InitialRAMPercentage=40.0", \
+  "-XX:+UseG1GC", \
+  "-XX:MaxGCPauseMillis=100", \
+  "-XX:+ExitOnOutOfMemoryError", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]
