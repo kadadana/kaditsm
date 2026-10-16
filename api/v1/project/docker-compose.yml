@@ -15,7 +15,7 @@ services:
       resources:
         limits:
           cpus: '0.50'
-          memory: 128M
+          memory: 256M
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 3s
@@ -35,27 +35,30 @@ services:
       - "${SERVICE_PORT}:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SPRING_MAIN_LAZY_INITIALIZATION: "true"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      LOGGING_LEVEL_ORG_HIBERNATE_SQL: WARN
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: WARN   
       PORT: 8080
       DB_HOST: project-postgres
       DB_PORT: 5432
       DB_NAME: project_db
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASS}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_OPEN_IN_VIEW: "false"
     deploy:
       resources:
         limits:
-          cpus: '1.5'
-          memory: 450M
+          cpus: '2.0'
+          memory: 768M
         reservations:
-          memory: 200M
+          memory: 512M
     healthcheck:
       test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1" ]
-      interval: 5s
+      interval: 2s
       timeout: 3s
-      retries: 5
-      start_period: 45s
+      retries: 30
+      start_period: 20s
     depends_on:
       project-postgres:
         condition: service_healthy
