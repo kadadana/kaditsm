@@ -53,10 +53,10 @@ services:
     volumes:
       - user-kafka-data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD-SHELL", "kafka-cluster.sh cluster-id --bootstrap-server 127.0.0.1:9092 || exit 1"]
-      interval: 5s
-      timeout: 10s
-      retries: 5
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list > /dev/null 2>&1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
       start_period: 30s
     networks: [ kaditsm-network ]
 
