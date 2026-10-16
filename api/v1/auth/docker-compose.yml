@@ -110,10 +110,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.5'
-          memory: 450M
+          cpus: '2.0'
+          memory: 768M
         reservations:
-          memory: 200M
+          memory: 512M
     healthcheck:
       test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1" ]
       interval: 2s
