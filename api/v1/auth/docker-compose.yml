@@ -64,14 +64,16 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
-          memory: 256M
+          cpus: '0.75'
+          memory: 384M
+        reservations:
+          memory: 128M
     healthcheck:
-      test: [ "CMD-SHELL", "nc -z localhost 5672" ]
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping || exit 1"]
       interval: 5s
-      timeout: 3s
+      timeout: 5s
       retries: 5
-      start_period: 15s
+      start_period: 20s
     networks:
       auth-network:
         aliases:
