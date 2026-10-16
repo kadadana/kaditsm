@@ -23,7 +23,6 @@ ENTRYPOINT ["java", \
   "-XX:MaxRAMPercentage=70.0", \
   "-Xms192m", \
   "-XX:+UseG1GC", \
-  "-XX:TieredStopAtLevel=1", \
   "-XX:+ExitOnOutOfMemoryError", \
   "-Djava.security.egd=file:/dev/./urandom", \
   "-jar", "app.jar"]
