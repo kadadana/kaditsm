@@ -15,7 +15,7 @@ services:
       resources:
         limits:
           cpus: '0.50'
-          memory: 128M
+          memory: 256M
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-tenant_db}" ]
       interval: 3s
@@ -63,7 +63,7 @@ services:
       - "${PORT:-8082}:8082"
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__Postgres: "Host=tenant-postgres;Port=5432;Database=${POSTGRES_DB:-tenant-db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
+      ConnectionStrings__Postgres: "Host=tenant-postgres;Port=5432;Database=${POSTGRES_DB:-tenant_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}"
       RabbitMq__HostName: tenant-rabbitmq
       RabbitMq__Port: "5672"
       RabbitMq__UserName: ${RABBITMQ_USER:-guest}
@@ -75,8 +75,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
-          memory: 256M
+          cpus: '1.0'
+          memory: 512M
     healthcheck:
       test: [ "CMD", "curl", "-fsS", "http://localhost:8082/health" ]
       interval: 5s
