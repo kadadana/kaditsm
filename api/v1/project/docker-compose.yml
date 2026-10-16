@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   project-postgres:
     image: postgres:16-alpine
@@ -13,11 +11,17 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - project-postgres-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 128M
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
-      interval: 5s
-      timeout: 5s
+      interval: 3s
+      timeout: 3s
       retries: 5
+      start_period: 5s
     networks:
       - project-network
 
@@ -25,7 +29,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: project-service
+    container_name: project_service
     restart: unless-stopped
     ports:
       - "${SERVICE_PORT}:8080"
@@ -37,23 +41,21 @@ services:
       DB_NAME: project_db
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASS}
-      JWT_JWKS_URL: ${JWT_JWKS_URL}
-      JWT_ISSUER: ${JWT_ISSUER}
-      JAVA_TOOL_OPTIONS: >-
-        -XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -XX:InitialRAMPercentage=40.0 -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+ExitOnOutOfMemoryError
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_OPEN_IN_VIEW: "false"
     deploy:
       resources:
         limits:
-          cpus: '0.50'
-          memory: 384M
+          cpus: '1.5'
+          memory: 450M
         reservations:
-          memory: 128M
+          memory: 200M
     healthcheck:
-      test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1" ]
-      interval: 3s
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1" ]
+      interval: 5s
       timeout: 3s
-      retries: 10
-      start_period: 12s
+      retries: 5
+      start_period: 45s
     depends_on:
       project-postgres:
         condition: service_healthy
