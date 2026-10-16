@@ -90,6 +90,10 @@ services:
       - "${SERVICE_PORT}:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
+      SPRING_MAIN_LAZY_INITIALIZATION: "true"
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      LOGGING_LEVEL_ORG_HIBERNATE_SQL: WARN
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: WARN
       PORT: 8080
       DB_HOST: auth-postgres
       DB_PORT: 5432
@@ -105,7 +109,6 @@ services:
       JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
       JWT_KEY_ID: ${JWT_KEY_ID}
       JWT_ISSUER: ${JWT_ISSUER}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_OPEN_IN_VIEW: "false"
     deploy:
       resources:
