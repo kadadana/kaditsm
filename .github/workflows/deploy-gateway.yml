@@ -36,5 +36,3 @@ jobs:
           docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network
 
           docker compose up -d --build gateway-service --wait --wait-timeout 45
-
-          docker image prune -f

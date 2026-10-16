@@ -35,7 +35,4 @@ jobs:
                   JWT_ISSUER: ${{vars.JWT_ISSUER}}
               run: |
                   docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network
-
                   docker compose up -d --build --wait --wait-timeout 60
-
-                  docker image prune -f
