@@ -107,7 +107,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference();// /scalar/v1
 }
-
+app.MapHealthChecks("/health").AllowAnonymous();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
