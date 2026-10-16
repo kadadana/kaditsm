@@ -32,4 +32,4 @@ jobs:
 
               run: |
                   docker network inspect kaditsm-network >/dev/null 2>&1 || docker network create kaditsm-network
-                  docker compose up -d --build user-service --wait --wait-timeout 120
+                  docker compose up -d --build user-service --wait --wait-timeout 180
