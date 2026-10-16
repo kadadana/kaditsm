@@ -75,8 +75,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
-          memory: 256M
+          cpus: '1.0'
+          memory: 512M
     ports:
       - "${SERVICE_PORT}:8080"
     depends_on:
