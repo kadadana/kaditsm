@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +18,7 @@ if (builder.Environment.IsDevelopment())
 }
 
 builder.Services.AddControllers();
-
+builder.Services.AddHealthChecks();
 builder.Services.AddHttpClient("JwksClient");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
