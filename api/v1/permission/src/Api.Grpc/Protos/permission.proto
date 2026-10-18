@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package permission.v1;
+option csharp_namespace = "PermissionService.Api.Grpc.V1";
+
+service PermissionCheck {
+  rpc Check(CheckRequest) returns (CheckResponse);
+}
+
+message ObjectReference {
+  string type = 1;
+  string id = 2;
+}
+
+message SubjectReference {
+  ObjectReference object = 1;
+  string relation = 2;
+}
+
+message CheckRequest {
+  SubjectReference subject = 1;
+  string permission = 2;
+  ObjectReference resource = 3;
+  string consistency_token = 4;
+}
+
+message CheckResponse {
+  bool allowed = 1;
+}
