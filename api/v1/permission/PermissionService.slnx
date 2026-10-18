@@ -1,0 +1,28 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Adapters.Postgres/">
+    <Project Path="src/Adapters.Postgres/PermissionService.Adapters.Postgres.csproj" />
+  </Folder>
+  <Folder Name="/src/Adapters.SpiceDb/">
+    <Project Path="src/Adapters.SpiceDb/PermissionService.Adapters.SpiceDb.csproj" />
+  </Folder>
+  <Folder Name="/src/Api.Grpc/">
+    <Project Path="src/Api.Grpc/PermissionService.Api.Grpc.csproj" />
+  </Folder>
+  <Folder Name="/src/Api.Rest/">
+    <Project Path="src/Api.Rest/PermissionService.Api.Rest.csproj" />
+  </Folder>
+  <Folder Name="/src/Application/">
+    <Project Path="src/Application/PermissionService.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Domain/">
+    <Project Path="src/Domain/PermissionService.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/Host/">
+    <Project Path="src/Host/PermissionService.Host.csproj" />
+  </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/IntegrationTests/">
+    <Project Path="tests/IntegrationTests/PermissionService.IntegrationTests.csproj" />
+  </Folder>
+</Solution>

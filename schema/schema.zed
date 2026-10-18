@@ -1,0 +1,19 @@
+definition user {}
+
+definition group {
+  relation member: user | group#member
+}
+
+definition project {
+  relation admin: user | group#member
+  relation member: user | group#member
+  permission manage_members = admin
+  permission view = admin + member
+}
+
+definition ticket {
+  relation parent: project
+  relation creator: user
+  permission view = creator + parent->view
+  permission edit = creator + parent->admin
+}

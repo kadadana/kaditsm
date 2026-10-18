@@ -43,4 +43,31 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
     WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${USER_DB_NAME:-user_db}')\gexec
 
     GRANT ALL PRIVILEGES ON DATABASE ${USER_DB_NAME:-user_db} TO ${USER_DB_USER:-user_user};
+        -- 4. Permission Service (User & DB)
+    DO \$\$
+    BEGIN
+        IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${PERMISSION_DB_USER:-permission_user}') THEN
+            CREATE ROLE ${PERMISSION_DB_USER:-permission_user} WITH LOGIN PASSWORD '${PERMISSION_DB_PASSWORD:-permission_pass}';
+        END IF;
+    END
+    \$\$;
+
+    SELECT 'CREATE DATABASE ${PERMISSION_DB_NAME:-permission_db} OWNER ${PERMISSION_DB_USER:-permission_user}'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${PERMISSION_DB_NAME:-permission_db}')\gexec
+
+    GRANT ALL PRIVILEGES ON DATABASE ${PERMISSION_DB_NAME:-permission_db} TO ${PERMISSION_DB_USER:-permission_user};
+
+    -- 5. SpiceDB (User & DB)
+    DO \$\$
+    BEGIN
+        IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${SPICEDB_DB_USER:-spicedb_user}') THEN
+            CREATE ROLE ${SPICEDB_DB_USER:-spicedb_user} WITH LOGIN PASSWORD '${SPICEDB_DB_PASSWORD:-spicedb_pass}';
+        END IF;
+    END
+    \$\$;
+
+    SELECT 'CREATE DATABASE ${SPICEDB_DB_NAME:-spicedb} OWNER ${SPICEDB_DB_USER:-spicedb_user}'
+    WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${SPICEDB_DB_NAME:-spicedb}')\gexec
+
+    GRANT ALL PRIVILEGES ON DATABASE ${SPICEDB_DB_NAME:-spicedb} TO ${SPICEDB_DB_USER:-spicedb_user};
 EOSQL

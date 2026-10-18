@@ -18,6 +18,12 @@ services:
       USER_DB_NAME: ${USER_DB_NAME:-user_db}
       USER_DB_USER: ${USER_DB_USER:-user_user}
       USER_DB_PASSWORD: ${USER_DB_PASSWORD:-user_pass}
+      PERMISSION_DB_NAME: ${PERMISSION_DB_NAME:-permission_db}
+      PERMISSION_DB_USER: ${PERMISSION_DB_USER:-permission_user}
+      PERMISSION_DB_PASSWORD: ${PERMISSION_DB_PASSWORD:-permission_pass}
+      SPICEDB_DB_NAME: ${SPICEDB_DB_NAME:-spicedb}
+      SPICEDB_DB_USER: ${SPICEDB_DB_USER:-spicedb_user}
+      SPICEDB_DB_PASSWORD: ${SPICEDB_DB_PASSWORD:-spicedb_pass}
     ports:
       - "${DEV_POSTGRES_PORT}:5432"
     volumes:
@@ -70,7 +76,7 @@ services:
     volumes:
       - dev-kaditsm-rabbitmq-data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/5672'"]
+      test: [ "CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/5672'" ]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -113,6 +119,49 @@ services:
       timeout: 5s
       retries: 5
       start_period: 60s
+
+  spicedb-migrate:
+    image: authzed/spicedb:latest
+    command: migrate head
+    environment:
+      SPICEDB_DATASTORE_ENGINE: postgres
+      SPICEDB_DATASTORE_CONN_URI: postgres://${SPICEDB_DB_USER:-spicedb_user}:${SPICEDB_DB_PASSWORD:-spicedb_pass}@postgres:5432/${SPICEDB_DB_NAME:-spicedb}?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  spicedb:
+    image: authzed/spicedb:latest
+    command: serve
+    container_name: dev-kaditsm-spicedb
+    restart: unless-stopped
+    environment:
+      SPICEDB_DATASTORE_ENGINE: postgres
+      SPICEDB_DATASTORE_CONN_URI: postgres://${SPICEDB_DB_USER:-spicedb_user}:${SPICEDB_DB_PASSWORD:-spicedb_pass}@postgres:5432/${SPICEDB_DB_NAME:-spicedb}?sslmode=disable
+      SPICEDB_GRPC_PRESHARED_KEY: ${SPICEDB_GRPC_PRESHARED_KEY:?set SPICEDB_GRPC_PRESHARED_KEY}
+    ports:
+      - "${DEV_SPICEDB_PORT:-50051}:50051"
+    depends_on:
+      spicedb-migrate:
+        condition: service_completed_successfully
+  spicedb-schema:
+    image: authzed/zed:latest
+    command:
+      - schema
+      - write
+      - /schema/schema.zed
+      - --endpoint
+      - spicedb:50051
+      - --token
+      - ${SPICEDB_GRPC_PRESHARED_KEY:?set SPICEDB_GRPC_PRESHARED_KEY}
+      - --insecure
+    volumes:
+      - ./schema:/schema:ro
+    depends_on:
+      spicedb:
+        condition: service_started
+    restart: on-failure
 
 volumes:
   dev-kaditsm-postgres-data:
