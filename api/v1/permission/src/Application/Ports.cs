@@ -16,3 +16,8 @@ public interface ICheckPermission
 
 public sealed record CheckPermissionQuery(
     SubjectRef Subject, string Permission, ObjectRef Resource, string? ConsistencyToken = null);
+
+public static class ConsistencyToken
+{
+    public const string Full = "@full";
+}

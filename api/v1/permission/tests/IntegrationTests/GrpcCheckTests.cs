@@ -16,7 +16,7 @@ public class GrpcCheckTests
 
         var token = await store.WriteAsync(
         [
-            new(UpdateOp.Touch, new(new ObjectRef("project", $"p{id}"), "member",
+            new(UpdateOp.Touch, new(new ObjectRef("project", $"p{id}"), "view_granted",
                 new SubjectRef(new ObjectRef("user", $"u{id}")))),
         ], default);
 

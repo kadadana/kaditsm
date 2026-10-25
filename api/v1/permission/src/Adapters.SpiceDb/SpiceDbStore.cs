@@ -72,10 +72,12 @@ public sealed class SpiceDbStore : IPermissionStore, IDisposable
         return res.WrittenAt.Token;   // ZedToken
     }
 
-    private static Consistency ToConsistency(string? token) =>
-        token is null
-            ? new Consistency { MinimizeLatency = true }
-            : new Consistency { AtLeastAsFresh = new ZedToken { Token = token } };
+    private static Consistency ToConsistency(string? token) => token switch
+    {
+        null => new Consistency { MinimizeLatency = true },
+        ConsistencyToken.Full => new Consistency { FullyConsistent = true },
+        _ => new Consistency { AtLeastAsFresh = new ZedToken { Token = token } },
+    };
 
     private static ObjectReference ToObject(ObjectRef o) =>
         new() { ObjectType = o.Type, ObjectId = o.Id };
