@@ -1,19 +1,33 @@
 definition user {}
 
+definition platform {
+	relation admin: user
+	permission administer = admin
+}
+
 definition group {
-  relation member: user | group#member
+	relation member: user | group#member
+}
+
+definition role {
+	relation member: user | group#member
 }
 
 definition project {
-  relation admin: user | group#member
-  relation member: user | group#member
-  permission manage_members = admin
-  permission view = admin + member
+	relation view_granted: user | group#member | role#member
+	relation edit_granted: user | group#member | role#member
+	relation manage_members_granted: user | group#member | role#member
+	permission view = view_granted
+	permission edit = edit_granted
+	permission manage_members = manage_members_granted
 }
 
 definition ticket {
-  relation parent: project
-  relation creator: user
-  permission view = creator + parent->view
-  permission edit = creator + parent->admin
+	relation parent: project
+	relation creator: user
+	relation view_granted: user | group#member | role#member
+	relation edit_granted: user | group#member | role#member
+	permission view = view_granted + creator + parent->view
+	permission edit = edit_granted + parent->edit
+	permission manage_members = parent->manage_members
 }

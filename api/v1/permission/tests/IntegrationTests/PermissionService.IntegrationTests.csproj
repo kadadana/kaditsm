@@ -16,6 +16,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.13" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
@@ -23,13 +24,13 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
-    <Protobuf Include="..\..\src\Api.Grpc\Protos\permission.proto"
-      GrpcServices="Client" Link="Protos\permission.proto" />
+    <Protobuf Include="..\..\src\Api.Grpc\Protos\permission.proto" GrpcServices="Client" Link="Protos\permission.proto" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Adapters.SpiceDb\PermissionService.Adapters.SpiceDb.csproj" />
     <ProjectReference Include="..\..\src\Application\PermissionService.Application.csproj" />
+    <ProjectReference Include="..\..\src\Adapters.Postgres\PermissionService.Adapters.Postgres.csproj" />
   </ItemGroup>
 
 </Project>
