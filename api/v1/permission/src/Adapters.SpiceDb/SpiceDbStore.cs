@@ -93,5 +93,55 @@ public sealed class SpiceDbStore : IPermissionStore, IDisposable
         {
             throw new PermissionStoreUnavailableException("SpiceDB is unavailable.", e);
         }
+        catch (RpcException e) when (e.StatusCode == StatusCode.InvalidArgument)
+        {
+            throw new ArgumentException("Invalid object or subject reference.");
+        }
+    }
+
+    public async Task<IReadOnlyList<SubjectRef>> ReadSubjectsAsync(
+    ObjectRef resource, string relation, string? token, CancellationToken ct)
+    {
+        try
+        {
+            using var call = _client.ReadRelationships(new ReadRelationshipsRequest
+            {
+                Consistency = ToConsistency(token),
+                RelationshipFilter = new RelationshipFilter
+                {
+                    ResourceType = resource.Type,
+                    OptionalResourceId = resource.Id,
+                    OptionalRelation = relation,
+                },
+                OptionalLimit = 1000,
+            }, headers: _headers, cancellationToken: ct);
+
+            var list = new List<SubjectRef>();
+            while (await call.ResponseStream.MoveNext(ct))
+            {
+                var s = call.ResponseStream.Current.Relationship.Subject;
+                list.Add(new SubjectRef(new ObjectRef(s.Object.ObjectType, s.Object.ObjectId),
+                    string.IsNullOrEmpty(s.OptionalRelation) ? null : s.OptionalRelation));
+            }
+            return list;
+        }
+        catch (RpcException e) when (e.StatusCode is StatusCode.Unavailable or StatusCode.DeadlineExceeded)
+        {
+            throw new PermissionStoreUnavailableException("SpiceDB is unavailable.", e);
+        }
+    }
+
+    public async Task<string> DeleteRelationshipsAsync(ObjectRef resource, string relation, CancellationToken ct)
+    {
+        var res = await Call(() => _client.DeleteRelationshipsAsync(new DeleteRelationshipsRequest
+        {
+            RelationshipFilter = new RelationshipFilter
+            {
+                ResourceType = resource.Type,
+                OptionalResourceId = resource.Id,
+                OptionalRelation = relation,
+            },
+        }, headers: _headers, cancellationToken: ct).ResponseAsync);
+        return res.DeletedAt.Token;
     }
 }

@@ -52,6 +52,12 @@ internal sealed class RoleRepository(PermissionDb db) : IRoleRepository
         await db.Bindings.Where(b => b.RoleId == roleId).ToListAsync(ct);
     public async Task AddBindingAsync(RoleBinding binding, CancellationToken ct) =>
         await db.Bindings.AddAsync(binding, ct);
+    public async Task<IReadOnlyList<Role>> ListAsync(CancellationToken ct) =>
+await db.Roles.OrderBy(r => r.Name).ToListAsync(ct);
+    public async Task<IReadOnlyList<RoleBinding>> BindingsOfScopeAsync(ObjectRef scope, CancellationToken ct) =>
+        await db.Bindings.Where(b => b.ScopeType == scope.Type && b.ScopeId == scope.Id).ToListAsync(ct);
+    public void RemoveBinding(RoleBinding binding) => db.Bindings.Remove(binding);
+    public void RemoveRole(Role role) => db.Roles.Remove(role);
 }
 
 internal sealed class AuditLog(PermissionDb db) : IAuditLog

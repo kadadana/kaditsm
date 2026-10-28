@@ -7,8 +7,12 @@ public interface IPermissionStore
                           string? consistencyToken, CancellationToken ct);
 
     Task<string> WriteAsync(IReadOnlyList<RelationshipUpdate> updates, CancellationToken ct);
-}
 
+    Task<IReadOnlyList<SubjectRef>> ReadSubjectsAsync(
+        ObjectRef resource, string relation, string? consistencyToken, CancellationToken ct);
+
+    Task<string> DeleteRelationshipsAsync(ObjectRef resource, string relation, CancellationToken ct);
+}
 public interface ICheckPermission
 {
     Task<bool> ExecuteAsync(CheckPermissionQuery query, CancellationToken ct);
