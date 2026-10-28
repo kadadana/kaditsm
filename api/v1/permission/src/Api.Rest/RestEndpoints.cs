@@ -34,6 +34,21 @@ public static class RestEndpoints
             return Results.Ok(new { consistencyToken = token });
         });
 
+        g.MapGet("/roles", async (RoleAdministration admin, CancellationToken ct) =>
+                   Results.Ok((await admin.ListRolesAsync(ct)).Select(r => new { r.Id, r.Name, r.Actions })));
+
+        g.MapGet("/roles/{id:guid}/bindings", async (Guid id, HttpContext http,
+            RoleAdministration admin, CancellationToken ct) =>
+            Results.Ok((await admin.BindingsOfRoleAsync(Actor(http), id, ct))
+                .Select(b => new { bindingId = b.Id, scope = new { type = b.ScopeType, id = b.ScopeId } })));
+
+        g.MapDelete("/roles/{id:guid}", async (Guid id, HttpContext http,
+            RoleAdministration admin, CancellationToken ct) =>
+        {
+            await admin.DeleteRoleAsync(Actor(http), id, ct);
+            return Results.NoContent();
+        });
+
         g.MapPost("/bindings", async (BindRoleRequest r, HttpContext http,
             RoleAdministration admin, CancellationToken ct) =>
         {
@@ -50,6 +65,35 @@ public static class RestEndpoints
                 string.IsNullOrWhiteSpace(r.Subject.Relation) ? null : r.Subject.Relation);
             var token = await admin.AssignAsync(Actor(http), id, subject, ct);
             return Results.Ok(new { consistencyToken = token });
+        });
+
+        g.MapDelete("/bindings/{id:guid}", async (Guid id, HttpContext http,
+            RoleAdministration admin, CancellationToken ct) =>
+            Results.Ok(new { consistencyToken = await admin.UnbindAsync(Actor(http), id, ct) }));
+
+        g.MapDelete("/bindings/{id:guid}/assignments/{type}/{subjectId}", async (
+            Guid id, string type, string subjectId, string? relation, HttpContext http,
+            RoleAdministration admin, CancellationToken ct) =>
+        {
+            var subject = new SubjectRef(new ObjectRef(type, subjectId),
+                string.IsNullOrWhiteSpace(relation) ? null : relation);
+            return Results.Ok(new { consistencyToken = await admin.UnassignAsync(Actor(http), id, subject, ct) });
+        });
+
+        g.MapGet("/actions", () => Results.Ok(ActionCatalog.Snapshot()));
+
+        g.MapGet("/access/{type}/{id}", async (string type, string id, HttpContext http,
+            RoleAdministration admin, CancellationToken ct) =>
+        {
+            var entries = await admin.GetAccessAsync(Actor(http), new ObjectRef(type, id), ct);
+            return Results.Ok(entries.Select(e => new
+            {
+                e.BindingId,
+                e.RoleId,
+                e.RoleName,
+                e.Actions,
+                members = e.Members.Select(m => new { type = m.Object.Type, id = m.Object.Id, relation = m.Relation }),
+            }));
         });
 
         return app;

@@ -1,6 +1,10 @@
 using PermissionService.Domain;
 namespace PermissionService.Application;
 
+public sealed record AccessEntry(
+    Guid BindingId, Guid RoleId, string RoleName,
+    IReadOnlyList<string> Actions, IReadOnlyList<SubjectRef> Members);
+
 public interface IRoleRepository
 {
     Task<Role?> GetAsync(Guid id, CancellationToken ct);
@@ -8,6 +12,10 @@ public interface IRoleRepository
     Task<RoleBinding?> GetBindingAsync(Guid id, CancellationToken ct);
     Task<IReadOnlyList<RoleBinding>> BindingsOfAsync(Guid roleId, CancellationToken ct);
     Task AddBindingAsync(RoleBinding binding, CancellationToken ct);
+    Task<IReadOnlyList<Role>> ListAsync(CancellationToken ct);
+    Task<IReadOnlyList<RoleBinding>> BindingsOfScopeAsync(ObjectRef scope, CancellationToken ct);
+    void RemoveBinding(RoleBinding binding);
+    void RemoveRole(Role role);
 }
 
 public interface IAuditLog
@@ -19,8 +27,6 @@ public interface IUnitOfWork
 {
     Task CommitAsync(CancellationToken ct);
 }
-
-public sealed class NotFoundException(string message) : Exception(message);
 
 public sealed class RoleAdministration(
     IRoleRepository roles, IAuditLog audit, IUnitOfWork uow, IPermissionStore store)
@@ -149,4 +155,89 @@ public sealed class RoleAdministration(
 
     private static RelationshipUpdate Touch(Relationship r) => new(UpdateOp.Touch, r);
     private static RelationshipUpdate Delete(Relationship r) => new(UpdateOp.Delete, r);
+
+    public Task<IReadOnlyList<Role>> ListRolesAsync(CancellationToken ct) => roles.ListAsync(ct);
+
+    public async Task<IReadOnlyList<RoleBinding>> BindingsOfRoleAsync(SubjectRef actor, Guid roleId, CancellationToken ct)
+    {
+        await RequirePlatformAdminAsync(actor, ct);
+        return await roles.BindingsOfAsync(roleId, ct);
+    }
+
+    public async Task<IReadOnlyList<AccessEntry>> GetAccessAsync(SubjectRef actor, ObjectRef scope, CancellationToken ct)
+    {
+        await RequireCanManageAsync(actor, scope, ct);
+
+        var bindings = await roles.BindingsOfScopeAsync(scope, ct);
+        var byId = (await roles.ListAsync(ct)).ToDictionary(r => r.Id);
+
+        var result = new List<AccessEntry>();
+        foreach (var b in bindings)
+        {
+            var role = byId[b.RoleId];
+            var members = await store.ReadSubjectsAsync(
+                BindingExpansion.RoleObject(b.Id), "member", ConsistencyToken.Full, ct);
+            result.Add(new AccessEntry(b.Id, role.Id, role.Name, role.Actions, members));
+        }
+        return result;
+    }
+
+    public async Task<string> UnassignAsync(SubjectRef actor, Guid bindingId, SubjectRef subject, CancellationToken ct)
+    {
+        var binding = await roles.GetBindingAsync(bindingId, ct)
+                      ?? throw new NotFoundException($"Binding {bindingId} not found.");
+        await RequireCanManageAsync(actor, binding.Scope, ct);
+
+        var token = (await WriteChunked(
+            [Delete(new Relationship(BindingExpansion.RoleObject(bindingId), "member", subject))], ct))!;
+
+        audit.Record(Who(actor), "assignment.delete", binding.Scope.ToString(),
+            new { bindingId, subject = Describe(subject) });
+        await uow.CommitAsync(ct);
+        return token;
+    }
+
+    public async Task<string> UnbindAsync(SubjectRef actor, Guid bindingId, CancellationToken ct)
+    {
+        var binding = await roles.GetBindingAsync(bindingId, ct)
+                      ?? throw new NotFoundException($"Binding {bindingId} not found.");
+        var role = await roles.GetAsync(binding.RoleId, ct)
+                   ?? throw new NotFoundException($"Role {binding.RoleId} not found.");
+        await RequireCanManageAsync(actor, binding.Scope, ct);
+
+        await WriteChunked(BindingExpansion.Expand(binding, role.Actions).Select(Delete), ct);
+        var token = await store.DeleteRelationshipsAsync(
+            BindingExpansion.RoleObject(bindingId), "member", ct);
+
+        roles.RemoveBinding(binding);
+        audit.Record(Who(actor), "binding.delete", binding.Scope.ToString(),
+            new { bindingId, roleId = role.Id, role.Actions });
+        await uow.CommitAsync(ct);
+        return token;
+    }
+
+    public async Task DeleteRoleAsync(SubjectRef actor, Guid roleId, CancellationToken ct)
+    {
+        await RequirePlatformAdminAsync(actor, ct);
+
+        var role = await roles.GetAsync(roleId, ct) ?? throw new NotFoundException($"Role {roleId} not found.");
+        if ((await roles.BindingsOfAsync(roleId, ct)).Count > 0)
+            throw new ConflictException("Role is still bound to scopes. Unbind it first.");
+
+        roles.RemoveRole(role);
+        audit.Record(Who(actor), "role.delete", $"role-def:{roleId}", new { role.Name });
+        await uow.CommitAsync(ct);
+    }
+
+    private async Task RequireCanManageAsync(SubjectRef actor, ObjectRef scope, CancellationToken ct)
+    {
+        if (!ActionCatalog.IsKnownType(scope.Type))
+            throw new ArgumentException($"Unknown scope type '{scope.Type}'.");
+        if (await IsPlatformAdminAsync(actor, ct)) return;
+        if (!await store.CheckAsync(scope, "manage_members", actor, ConsistencyToken.Full, ct))
+            throw new ForbiddenException($"You cannot manage access on {scope}.");
+    }
+
+    private static string Describe(SubjectRef s) =>
+        s.Relation is null ? s.Object.ToString() : $"{s.Object}#{s.Relation}";
 }

@@ -12,6 +12,9 @@ public static class ActionCatalog
     public static bool IsKnown(string action) => ByType.Values.Any(s => s.Contains(action));
     public static bool IsValid(string type, string action) =>
         ByType.TryGetValue(type, out var s) && s.Contains(action);
+
+    public static IReadOnlyDictionary<string, string[]> Snapshot() =>
+ByType.ToDictionary(k => k.Key, v => v.Value.Order().ToArray());
 }
 
 public sealed class Role
